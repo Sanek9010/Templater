@@ -3,9 +3,13 @@ package com.templater.web;
 import com.templater.domain.Template;
 import com.templater.repositories.TemplateRepository;
 import com.templater.service.TemplateService;
-import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -14,7 +18,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -30,13 +39,17 @@ public class TemplateController {
     }
 
     @RequestMapping(value = "/templates", method = RequestMethod.GET)
-    public String templateList(){
+    public String templateList(ModelMap model){
+        List<Template> templates = templateRepo.findAll();
+        model.put("templates", templates);
         return "templates";
     }
 
     @RequestMapping(value = "/templates", method = RequestMethod.POST)
     public String createTemplate(){
-        Template template = templateService.save(new Template());
+        Template template = new Template();
+        template.setNumberOfParts(0L);
+        template =templateService.save(template);
         return "redirect:/templates/"+template.getId();
     }
 
@@ -53,8 +66,42 @@ public class TemplateController {
     }
 
     @RequestMapping(value = "/templates/{templateId}", method = RequestMethod.POST)
-    public String saveTemplate(@PathVariable Long templateId, @ModelAttribute Template template){
-        templateService.save(template);
+    public String updateTemplate(@PathVariable Long templateId, @ModelAttribute Template template){
+        Template savedTemplate = templateService.save(template);
         return "redirect:/templates";
     }
+
+    @RequestMapping(value = "/templates/{templateId}/delete", method = RequestMethod.GET)
+    public String deleteTemplate(@PathVariable Long templateId){
+
+        templateRepo.deleteById(templateId);
+        return "redirect:/templates";
+    }
+
+
+    @RequestMapping(value = "/templates/{templateId}/getDocx", method = RequestMethod.GET)
+    public ResponseEntity<Resource> getDocx(@PathVariable Long templateId, @ModelAttribute Template template) throws IOException {
+        Optional<Template> templateOptional = templateRepo.findById(templateId);
+        Template actualTemplate;
+        if(templateOptional.isPresent()){
+            actualTemplate=templateOptional.get();
+        } else {
+            actualTemplate=template;
+        }
+        File file = new File(templateService.convertToDocx(actualTemplate));
+        Path path = Paths.get(file.getAbsolutePath());
+        ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=template.docx");
+        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        headers.add("Pragma", "no-cache");
+        headers.add("Expires", "0");
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(file.length())
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .body(resource);
+    }
+
+
 }

@@ -2,6 +2,7 @@ package com.templater.domain;
 
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 public class Document {
@@ -9,6 +10,26 @@ public class Document {
     private String name;
     private String dateOfCreation;
     private Template template;
+    private User user;
+    private Set<Placeholder> placeholders;
+
+    @OneToMany(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER, mappedBy = "document")
+    public Set<Placeholder> getPlaceholders() {
+        return placeholders;
+    }
+
+    public void setPlaceholders(Set<Placeholder> placeholders) {
+        this.placeholders = placeholders;
+    }
+
+    @ManyToOne
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

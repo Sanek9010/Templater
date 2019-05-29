@@ -12,7 +12,27 @@ public class User {
     private Long id;
     private String username;//на самом деле это email
     private String password;
+    private Set<Template> templates;
     private Set<Authority> authorities = new HashSet<>();
+    private Set<Document> documents;
+
+    @OneToMany(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY, mappedBy = "user")
+    public Set<Document> getDocuments() {
+        return documents;
+    }
+
+    public void setDocuments(Set<Document> documents) {
+        this.documents = documents;
+    }
+
+    @ManyToMany
+    public Set<Template> getTemplates() {
+        return templates;
+    }
+
+    public void setTemplates(Set<Template> templates) {
+        this.templates = templates;
+    }
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "user")
     public Set<Authority> getAuthorities() {

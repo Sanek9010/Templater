@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<head>
+    <title></title>
+</head>
+<body>
+
+<div th:fragment="templatesList" th:if="${templates !=null}">
+    <div th:each="template : ${templates}">
+        <div class = "form-group row" >
+            <div class="col-7" th:text="${template.name}"></div>
+            <div class="col-4" th:text="${template.dateOfCreation}"></div>
+            <a class="btn btn-secondary col-1" th:href="@{/templates/{templateId}(templateId=${template.id})}" th:text="Edit"></a>
+        </div>
+    </div>
+</div>
+
+<div th:fragment="paragraphFragment">
+    <div class="container">
+        <div class="card m-3">
+            Create your paragraph for template <div th:text="${templateId}"></div> here
+        </div>
+    </div>
+</div>
+
+<div th:fragment="templateXml" >
+    <div th:utext="${templateXmlText}"></div>
+</div>
+
+
+
+</body>
+</html>
