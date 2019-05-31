@@ -19,8 +19,14 @@ import org.docx4j.wml.RFonts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.w3c.tidy.Tidy;
+
+
 import static java.lang.Math.toIntExact;
 import javax.xml.bind.JAXBException;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 @Service
@@ -66,6 +72,7 @@ public class TemplateService {
 
     public String convertToDocx(Template template){
         //convert to docx4j:
+        // возможно это все можно заменить на AltChunkXHTMLRoundTrip из docx4j
         try {
             String baseURL = System.getProperty("user.dir");
             RFonts rfonts = Context.getWmlObjectFactory().createRFonts();
@@ -78,18 +85,29 @@ public class TemplateService {
             XHTMLImporterImpl XHTMLImporter = new XHTMLImporterImpl(wordMLPackage);
 
             XHTMLImporter.setHyperlinkStyle("Hyperlink");
+            //убираем именованные сущности из html
+            String htmlWithoutEntities = getTemplateXml(template);
+            Tidy tidy = new Tidy();
+            tidy.setInputEncoding("UTF-8");
+            tidy.setOutputEncoding("UTF-8");
+            tidy.setPrintBodyOnly(true); // only print the content
+            tidy.setXmlOut(true); // to XML
+            tidy.setSmartIndent(true);
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(htmlWithoutEntities.getBytes("UTF-8"));
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            tidy.parseDOM(inputStream, outputStream);
+            htmlWithoutEntities = outputStream.toString("UTF-8");
+
 
             wordMLPackage.getMainDocumentPart().getContent().addAll(
-                    XHTMLImporter.convert(getTemplateXml(template), baseURL) );
+                    XHTMLImporter.convert(htmlWithoutEntities, baseURL) );
             String fileLocation = baseURL + "/OUT_from_XHTML.docx";
             wordMLPackage.save(new java.io.File(fileLocation) );
-            //todo добавить обработку HTML entities.  смотри JTidy
+
             System.out.println(
                     XmlUtils.marshaltoString(wordMLPackage.getMainDocumentPart().getJaxbElement(), true, true));
             return fileLocation;
-        } catch (JAXBException e) {
-            e.printStackTrace();
-        } catch (Docx4JException e) {
+        } catch (JAXBException | Docx4JException | UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         return null;//todo заменить на что нибудь нормальное
@@ -105,9 +123,7 @@ public class TemplateService {
             template = new Template();//todo заменить на нормальную обработку
         }
 
-        //todo реализовать добавление в бд всех видов таблиц, текста и картинок
         if(requestContent.getEditorType().equals("Paragraph")){
-
             Paragraph paragraph = new Paragraph();
             paragraph.setContentXml(requestContent.getContent());
             paragraph.setId(template.getNumberOfParts());
@@ -129,5 +145,6 @@ public class TemplateService {
             //todo добавить ссылку
             return pictureRepository.save(picture);
         }
+        //todo добавить сохранение sdt контента в бд
     }
 }

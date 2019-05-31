@@ -7,11 +7,8 @@
     <title>Template</title>
 <!--    <link rel="stylesheet" type="text/css" th:href="@{/static/css/document-editor.css}" href="../static/css/document-editor.css">-->
     <script th:replace="fragments/header :: headerElement"></script>
-    <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
+    <script type="text/javascript" th:src="@{../ckeditor/ckeditor.js}"></script>
     <script type="text/javascript" th:src="@{/js/scripts.js}"></script>
-    <script type="text/javascript">
-
-    </script>
 
 </head>
 <body >
@@ -52,14 +49,27 @@
                     <button type="button" id="postEditor" class="btn btn-primary" onclick="postPart()">Save</button>
                 </div>
 
+<!--                <div id="listSdt" class="card" hidden>-->
+<!--                    <label for="listName" class="ml-2 col-form-label">Name of list</label>-->
+<!--                    <input type="text" id="listName" class="form-control col-1" />-->
+<!--                    <button type="button" id="postListNameButton" class="btn btn-primary col-auto" onclick="postListName()">Save</button>-->
+<!--                </div>-->
+<!--                -->
+<!--                <div id="tableSdt" class="card" hidden>-->
+<!--                    <label for="numberOfColumns" class="ml-2 col-form-label">Number of columns</label>-->
+<!--                    <input type="text" id="numberOfColumns" class="form-control" />-->
+<!--                    <div id="headerRow"></div>-->
+<!--                    <button type="button" id="createHeaderRowButton" class="btn btn-primary" onclick="createHeaderRow()">Create header row</button>-->
+<!--                    <button type="button" id="postTableSdtButton" class="btn btn-primary" onclick="postTableSdt()">Save</button>-->
+<!--                </div>-->
 
-
-                <div class="btn-group row m-3 col-6" role="group" aria-label="Basic example">
-                    <button type="button" id="createParagraphButton" class="btn btn-secondary col-4" onclick="createParagraph()" >Add Paragraph</button>
-                    <button type="button" id="createPictureButton" class="btn btn-secondary col-4" onclick="createPicture()">Add Picture</button>
-                    <button type="button" id="createTableButton" class="btn btn-secondary col-4" onclick="createTable()">Add Table</button>
+                <div class="btn-group row m-3 col-auto" role="group" aria-label="Basic example" id="createButtons">
+                    <button type="button" id="createParagraphButton" class="btn btn-secondary col-auto" onclick="createParagraph()" >Add Paragraph</button>
+                    <button type="button" id="createPictureButton" class="btn btn-secondary col-auto" onclick="createPicture()">Add Picture</button>
+                    <button type="button" id="createTableButton" class="btn btn-secondary col-auto" onclick="createTable()">Add Table</button>
+<!--                    <button type="button" id="createListSdtButton" class="btn btn-secondary col-auto" onclick="createListSdt()" >Add List Sdt</button>-->
+<!--                    <button type="button" id="createTableSdtButton" class="btn btn-secondary col-auto" onclick="createTableSdt()">Add Table Sdt</button>-->
                 </div>
-
 
 
                 <div class = "form-group row m-3 col-6">

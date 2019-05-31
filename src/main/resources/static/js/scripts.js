@@ -26,16 +26,17 @@ function createParagraph() {
             { name: 'others', groups: [ 'others' ] },
             { name: 'about', groups: [ 'about' ] }
         ],
+        extraPlugins:'sdt, sdtList,sdtTable',
         removeButtons: 'Source,NewPage,Preview,Print,Templates,Save,Cut,Copy,Paste,PasteText,PasteFromWord,Redo,Undo,Find,Replace,SelectAll,Scayt,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,Strike,RemoveFormat,CopyFormatting,Outdent,Indent,Blockquote,CreateDiv,JustifyLeft,JustifyCenter,JustifyRight,JustifyBlock,Language,BidiRtl,BidiLtr,Link,Unlink,Anchor,Flash,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,BGColor,TextColor,ShowBlocks,Maximize,About,Image,Table'
     });
-    $('#createTableButton').prop('disabled', true);
-    $('#createPictureButton').prop('disabled', true);
-    $('#createParagraphButton').prop('disabled', true);
+    $('#createButtons').prop('hidden',true);
+    // $('#createTableButton').prop('disabled', true);
+    // $('#createPictureButton').prop('disabled', true);
+    // $('#createParagraphButton').prop('disabled', true);
     $('#paragraphForm').prop('hidden', false);
     editorType="Paragraph";
-    //todo выключить кнопку, изменить редактор, добавить подобные редакторы для других кнопок, реализовать сохранение
-    // var url = window.location.href + "/paragraph";
-    // $("#contentBlock").load(url);
+    //todo  изменить редактор(запретить контент которого тут не должно быть)
+
 }
 function createPicture() {
     CKEDITOR.instances.editor.destroy();
@@ -58,14 +59,9 @@ function createPicture() {
         ],
         removeButtons: 'Source,NewPage,Preview,Print,Templates,Save,Cut,Copy,Paste,PasteText,PasteFromWord,Redo,Undo,Find,Replace,SelectAll,Scayt,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,Strike,RemoveFormat,CopyFormatting,Outdent,Indent,Blockquote,CreateDiv,JustifyLeft,JustifyCenter,JustifyRight,JustifyBlock,Language,BidiRtl,BidiLtr,Link,Unlink,Anchor,Flash,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,BGColor,TextColor,ShowBlocks,Maximize,About,Subscript,Superscript,NumberedList,BulletedList,Bold,Italic,Underline,Table,Format,Font,FontSize'
     });
-    $('#createTableButton').prop('disabled', true);
-    $('#createPictureButton').prop('disabled', true);
-    $('#createParagraphButton').prop('disabled', true);
+    $('#createButtons').prop('hidden',true);
     $('#paragraphForm').prop('hidden', false);
     editorType="Picture";
-    //todo выключить кнопку, изменить редактор, добавить подобные редакторы для других кнопок, реализовать сохранение
-    // var url = window.location.href + "/paragraph";
-    // $("#contentBlock").load(url);
 }
 function createTable() {
     CKEDITOR.instances.editor.destroy();
@@ -89,28 +85,17 @@ function createTable() {
         ],
         removeButtons: 'Source,NewPage,Preview,Print,Templates,Save,Cut,Copy,Paste,PasteText,PasteFromWord,Redo,Undo,Find,Replace,SelectAll,Scayt,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,Strike,RemoveFormat,CopyFormatting,Outdent,Indent,Blockquote,CreateDiv,JustifyLeft,JustifyCenter,JustifyRight,JustifyBlock,Language,BidiRtl,BidiLtr,Link,Unlink,Anchor,Flash,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,BGColor,TextColor,ShowBlocks,Maximize,About,Image,Subscript,Superscript,NumberedList,BulletedList'
     });
-    $('#createTableButton').prop('disabled', true);
-    $('#createPictureButton').prop('disabled', true);
-    $('#createParagraphButton').prop('disabled', true);
+    $('#createButtons').prop('hidden',true);
     $('#paragraphForm').prop('hidden', false);
     editorType="Table";
-    //todo выключить кнопку, изменить редактор, добавить подобные редакторы для других кнопок, реализовать сохранение
-    // var url = window.location.href + "/paragraph";
-    // $("#contentBlock").load(url);
 }
 function postPart() {
-    fireAjaxSubmit();
-    // $(document).ready(function () {
-    //     $("#paragraphForm").submit(function (event) {
-    //         event.preventDefault();
-    //         fireAjaxSubmit();
-    //     })
-    // })
+    fireAjaxSubmit(CKEDITOR.instances.editor.getData());
 }
-function fireAjaxSubmit() {
+function fireAjaxSubmit(content) {
     var contentObj={};
     contentObj.editorType = editorType;
-    contentObj.content = CKEDITOR.instances.editor.getData();
+    contentObj.content = content;
     let urlString= window.location.href + "/create";
     var token = $('#_csrf').attr('content');
     var header = $('#_csrf_header').attr('content');
@@ -126,12 +111,47 @@ function fireAjaxSubmit() {
     }).done(function (data) {
         var url = window.location.href + '/getParts';
         $("#partsList").load(url);
-        $('#createTableButton').prop('disabled', false);
-        $('#createPictureButton').prop('disabled', false);
-        $('#createParagraphButton').prop('disabled', false);
-        $('#paragraphEditor').prop('hidden', true);
-        $('#tableEditor').prop('hidden', true);
-        $('#pictureEditor').prop('hidden', true);
+        $('#createButtons').prop('hidden',false);
+        // $('#paragraphEditor').prop('hidden', true);
+        // $('#tableEditor').prop('hidden', true);
+        // $('#pictureEditor').prop('hidden', true);
+        $('#listSdt').prop('hidden', true);
+        $('#tableSdt').prop('hidden', true);
         $('#paragraphForm').prop('hidden', true);
     });
 }
+// function createListSdt(){
+//     $('#createButtons').prop('hidden',true);
+//     $('#listSdt').prop('hidden', false);
+//     editorType="ListSdt";
+// }
+// function createTableSdt() {
+//     $('#createButtons').prop('hidden',true);
+//     $('#tableSdt').prop('hidden', false);
+//     editorType="TableSdt";
+// }
+//
+// function postListName() {
+//     fireAjaxSubmit(document.getElementById('listName').value);
+// }
+//
+// function postTableSdt() {
+//     var i;
+//     var numberOfColumns= document.getElementById('numberOfColumns').value;
+//     var resultString='';
+//     for (i = 0; i < numberOfColumns; i++) {
+//         resultString+=document.getElementById('cell'+i).value+'<|>';
+//     }
+//     fireAjaxSubmit(resultString);
+// }
+// function createHeaderRow() {
+//     var i;
+//     var numberOfColumns= document.getElementById('numberOfColumns').value;
+//     for (i = 0; i < numberOfColumns; i++) {
+//         var x = document.createElement('INPUT');
+//         x.setAttribute('type', 'text');
+//         x.setAttribute('id', 'cell'+i);
+//         document.getElementById('headerRow').appendChild(x);
+//     }
+//     $('#createHeaderRowButton').prop('hidden',true);
+// }

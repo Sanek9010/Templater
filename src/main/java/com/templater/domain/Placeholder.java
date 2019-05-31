@@ -4,21 +4,21 @@ import javax.persistence.*;
 
 @Entity
 public class Placeholder {
-    private Long Id;
+    private Long id;
     private String type;//todo сделать enum
     private String name;
-    private String contentXml;// для таблиц
+    private String contentXml;
     private Template template;
     private Document document;
 
     @javax.persistence.Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long getId() {
-        return Id;
+        return id;
     }
 
     public void setId(Long id) {
-        Id = id;
+        this.id = id;
     }
 
     public String getType() {
