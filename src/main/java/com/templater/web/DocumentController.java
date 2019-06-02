@@ -79,6 +79,7 @@ public class DocumentController {
     @RequestMapping(value = "/documents/{documentId}", method = RequestMethod.POST)
     public String updateDocumentHeader(@PathVariable Long documentId, @ModelAttribute Document document){
         Document savedTemplate = documentRepository.save(document);
+        //todo реализовать редактирование шаблонов, и документов, В ДОКУМЕНТЫ ДОБАВИТЬ ВОЗМОЖНОСТЬ СКАЧАТЬ DOCX
         return "redirect:/documents";
     }
 

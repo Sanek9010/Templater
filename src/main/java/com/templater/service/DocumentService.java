@@ -37,7 +37,7 @@ public class DocumentService {
     }
 
     public Document addAllPlaceholders(Document document){
-        if(document.getPlaceholders()==null){
+        if(document.getPlaceholders().size() == 0){
             Set<Placeholder> placeholders = document.getTemplate().getPlaceholders();
             for (Placeholder placeholder:placeholders) {
                 Placeholder documentPlaceholder = new Placeholder();

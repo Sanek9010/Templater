@@ -2,6 +2,7 @@ package com.templater.domain;
 
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -11,14 +12,14 @@ public class Document {
     private String dateOfCreation;
     private Template template;
     private User user;
-    private Set<Placeholder> placeholders;
+    private List<Placeholder> placeholders;
 
     @OneToMany(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER, mappedBy = "document")
-    public Set<Placeholder> getPlaceholders() {
+    public List<Placeholder> getPlaceholders() {
         return placeholders;
     }
 
-    public void setPlaceholders(Set<Placeholder> placeholders) {
+    public void setPlaceholders(List<Placeholder> placeholders) {
         this.placeholders = placeholders;
     }
 

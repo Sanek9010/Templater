@@ -7,6 +7,7 @@
     <title>Document</title>
     <script th:replace="fragments/header :: headerElement"></script>
     <script type="text/javascript" th:src="@{/js/scriptsDocument.js}"></script>
+    <script th:inline="javascript" th:src="@{/js/thScripts.js}"></script>
 </head>
 <body>
 <!--@thymesVar id="document" type="com.templater.domain.Document"-->
@@ -40,6 +41,8 @@
                     </div>
                 </div>
 
+                <div th:data="${document.getPlaceholders().size()}" id="numberOfPlaceholders"></div>
+
                 <div th:each="placeholder,i: ${document.placeholders}" class="input-group m-2 p-2 border border-secondary rounded">
                     <input type="hidden" th:field="*{placeholders[__${i.index}__].id}"   />
                     <input type="hidden" th:field="*{placeholders[__${i.index}__].type}"   />
@@ -50,76 +53,37 @@
                         <label for="dateOfCreation" class="input-group-text" th:text="${placeholder.name}"></label>
                     </div>
 
-                    <div th:if="${placeholder.type=='ListSdt'}"  th:id="${placeholder.name}" th:text="${placeholder.contentXml}">
+                    <div class="col-12 mt-2" th:if="${placeholder.type=='ListSdt'}"  th:id="${placeholder.name}">
                         <input type="hidden" th:field="*{placeholders[__${i.index}__].contentXml}" />
-                        <ol th:id="'List'+${i.index}+'lvl-1'">
-                            <li contenteditable>
-                                <script th:inline="javascript">
-                                    /*<![CDATA[*/
-                                    var name = /*[[${placeholder.name}]]*/ 'default';
-                                    var headers = /*[[${placeholder.contentXml}]]*/ 'defaultHeader';
-                                    headers = JSON.parse(headers);
-                                    var table = document.getElementById(/*[['Table'+${i.index}]]*/'defaultTable');
-                                    var row = table.insertRow(0);
-                                    var i;
-                                    for (i = 0; i < headers.length; i++) {
-                                        row.insertCell(i).innerText =headers[i];
-                                    }
-                                    function addRow() {
-                                        var headers = /*[[${placeholder.contentXml}]]*/ 'defaultHeader';
-                                        headers = JSON.parse(headers);
-                                        var table = document.getElementById(/*[['Table'+${i.index}]]*/'defaultTable');
-                                        var row = table.insertRow(-1);
-                                        for (i = 0; i < headers.length; i++) {
-                                            var cell = row.insertCell(i);
-                                            cell.setAttribute('contenteditable','true');
-                                        }
-                                    }
-                                    function save() {
-                                        var inputContent = document.getElementById(/*[[placeholders__${i.index}__.contentXml]]*/'defaultTable');
-                                        inputContent.value = table.outerHTML;
-                                    }
-                                    /*]]>*/
-                                </script>
-                            </li>
-                        </ol>
-                        <button type="button" class="btn btn-primary m-4" onclick="addRow()">Add item</button>
-                        <button type="button" class="btn btn-primary m-4" onclick="save()">Save</button>
-                    </div>
+                        <ol th:data="0" class="list-group" th:id="'List'+${i.index}+'lvl00'">
+                            <li class="list-group-item py-1" contenteditable>
 
+                            </li>
+                            <div th:id="'List'+${i.index}+'lvl00'+'buttonRow'" class="row">
+                                <button type="button" class="btn btn-primary btn-sm mt-1 ml-3"
+                                        th:attr="onclick=|addItem('List'+${i.index}+'lvl00')|">
+                                    Add item
+                                </button>
+                                <button type="button" class="btn btn-primary btn-sm mt-1 ml-3"
+                                        th:attr="onclick=|addInnerItem('List'+${i.index}+'lvl',0,0)|">
+                                    Add inner item
+                                </button>
+                            </div>
+                        </ol>
+                        <button type="button" class="btn btn-primary m-4"
+                                th:attr="onclick=|save('placeholders'+${i.index}+'.contentXml','List'+${i.index}+'lvl00')|">
+                            Save</button>
+                    </div>
                     <div class="col-12 mt-2" th:if="${placeholder.type=='TableSdt'}">
                         <input type="hidden" th:field="*{placeholders[__${i.index}__].contentXml}" />
-                        <table class="table table-bordered"  th:id="'Table'+${i.index}">
-                            <script th:inline="javascript">
-                                /*<![CDATA[*/
-                               var name = /*[[${placeholder.name}]]*/ 'default';
-                                var headers = /*[[${placeholder.contentXml}]]*/ 'defaultHeader';
-                                headers = JSON.parse(headers);
-                                var table = document.getElementById(/*[['Table'+${i.index}]]*/'defaultTable');
-                                var row = table.insertRow(0);
-                                var i;
-                                for (i = 0; i < headers.length; i++) {
-                                    row.insertCell(i).innerText =headers[i];
-                                }
-                                function addRow() {
-                                    var headers = /*[[${placeholder.contentXml}]]*/ 'defaultHeader';
-                                    headers = JSON.parse(headers);
-                                    var table = document.getElementById(/*[['Table'+${i.index}]]*/'defaultTable');
-                                    var row = table.insertRow(-1);
-                                    for (i = 0; i < headers.length; i++) {
-                                        var cell = row.insertCell(i);
-                                        cell.setAttribute('contenteditable','true');
-                                    }
-                                }
-                                function save() {
-                                    var inputContent = document.getElementById(/*[[placeholders__${i.index}__.contentXml]]*/'defaultTable');
-                                    inputContent.value = table.outerHTML;
-                                }
-                                /*]]>*/
-                            </script>
-                        </table>
-                        <button type="button" class="btn btn-primary m-4" onclick="addRow()">Add row</button>
-                        <button type="button" class="btn btn-primary m-4" onclick="save()">Save</button>
+                        <table class="table table-bordered" th:data1="${placeholder.contentXml}" th:id="'Table'+${i.index}"></table>
+                        <button type="button" class="btn btn-primary m-4"
+                                th:attr="onclick=|addRow('${placeholder.contentXml}','Table'+'${i.index}')|">
+                            Add row
+                        </button>
+                        <button type="button" class="btn btn-primary m-4"
+                                th:attr="onclick=|save('placeholders'+${i.index}+'.contentXml','Table'+${i.index})|">
+                            Save</button>
                     </div>
                     <div class="col-12 mt-2" th:if="${placeholder.type=='SimpleSdt'}">
                         <input type="text" class="form-control" th:field="*{placeholders[__${i.index}__].contentXml}"/>
