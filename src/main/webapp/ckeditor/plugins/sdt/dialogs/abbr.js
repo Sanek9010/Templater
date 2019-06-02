@@ -21,7 +21,7 @@ CKEDITOR.dialog.add( 'insertSdt', function ( editor ) {
         onOk: function() {
             var name = this.getValueOf('tab-basic','name');
             editor.insertText('{{type:SimpleSdt, name:'+name+'}}');
-            ajaxSubmit(name, 'sdt')
+            ajaxSubmit(name, 'SimpleSdt')
         }
     };
 });

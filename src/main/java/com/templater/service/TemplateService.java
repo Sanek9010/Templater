@@ -1,13 +1,8 @@
 package com.templater.service;
 
-import com.templater.domain.DocTable;
-import com.templater.domain.Paragraph;
-import com.templater.domain.Picture;
-import com.templater.domain.Template;
-import com.templater.repositories.ParagraphRepository;
-import com.templater.repositories.PictureRepository;
-import com.templater.repositories.TableRepository;
-import com.templater.repositories.TemplateRepository;
+import com.google.gson.Gson;
+import com.templater.domain.*;
+import com.templater.repositories.*;
 import org.docx4j.XmlUtils;
 import org.docx4j.convert.in.xhtml.XHTMLImporterImpl;
 import org.docx4j.jaxb.Context;
@@ -40,6 +35,9 @@ public class TemplateService {
     private PictureRepository pictureRepository;
     @Autowired
     private TableRepository tableRepository;
+    @Autowired
+    private PlaceholderRepository placeholderRepository;
+
 
     public Template save(Template template){
         return templateRepo.save(template);
@@ -138,13 +136,34 @@ public class TemplateService {
             table.setTemplate(template);
             //todo добавить стиль таблицы
             return tableRepository.save(table);
-        } else {
+        } else if(requestContent.getEditorType().equals("Picture")){
             Picture picture = new Picture();
             picture.setId(template.getNumberOfParts());
             picture.setTemplate(template);
             //todo добавить ссылку
             return pictureRepository.save(picture);
+        } else if(requestContent.getEditorType().equals("ListSdt")){
+            Placeholder placeholder = new Placeholder();
+            placeholder.setTemplate(template);
+            placeholder.setType(requestContent.getEditorType());
+            placeholder.setName(requestContent.getContent());
+            return placeholderRepository.save(placeholder);
+        } else if(requestContent.getEditorType().equals("SimpleSdt")){
+            Placeholder placeholder = new Placeholder();
+            placeholder.setTemplate(template);
+            placeholder.setType(requestContent.getEditorType());
+            placeholder.setName(requestContent.getContent());
+            return placeholderRepository.save(placeholder);//потом можно это объеденить с ListSdt
+        }else{
+            Placeholder placeholder = new Placeholder();
+            placeholder.setTemplate(template);
+            placeholder.setType(requestContent.getEditorType());
+            Gson gson = new Gson();
+            TableSdtHeader tableSdtHeader = gson.fromJson(requestContent.getContent(),TableSdtHeader.class);
+            placeholder.setName(tableSdtHeader.getName());
+            String st = gson.toJson(tableSdtHeader.getHeaders());
+            placeholder.setContentXml(st);
+            return placeholderRepository.save(placeholder);
         }
-        //todo добавить сохранение sdt контента в бд
     }
 }

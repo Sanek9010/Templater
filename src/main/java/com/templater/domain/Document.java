@@ -58,7 +58,7 @@ public class Document {
     }
 
     @ManyToOne
-    @JoinColumn(name = "template_id", nullable = false)
+    @JoinColumn(name = "template_id")
     public Template getTemplate() {
         return template;
     }

@@ -40,8 +40,6 @@ public class PartController {
         return "fragments/templateFragments :: templateXml";
     }
 
-
-
     @RequestMapping(value = "create", method = RequestMethod.POST)
     public ResponseEntity<?> createPart(@PathVariable Long templateId, @RequestBody RequestContent requestContent, HttpServletResponse response) throws IOException {
         templateService.savePart(requestContent,templateId);

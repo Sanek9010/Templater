@@ -75,11 +75,14 @@ CKEDITOR.dialog.add( 'insertSdtTable', function ( editor ) {
             editor.insertText('{{type:TableSdt, name:'+name+'}}');
 
             var numberOfColumns= this.getValueOf('tab-basic','numberOfColumns');
-            var resultString='';
+            var array = [];
             for (i = 0; i < numberOfColumns; i++) {
-                resultString+=document.getById('cell'+i).getValue()+'<|>';
+                array.push(document.getById('cell'+i).getValue());
             }
-            ajaxSubmit(name+'{{:}}'+resultString, 'TableSdt')
+            var tableSdt = {};
+            tableSdt.name = name;
+            tableSdt.headers = array;
+            ajaxSubmit(JSON.stringify(tableSdt), 'TableSdt')
         }
     };
 });

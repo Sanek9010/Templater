@@ -120,38 +120,3 @@ function fireAjaxSubmit(content) {
         $('#paragraphForm').prop('hidden', true);
     });
 }
-// function createListSdt(){
-//     $('#createButtons').prop('hidden',true);
-//     $('#listSdt').prop('hidden', false);
-//     editorType="ListSdt";
-// }
-// function createTableSdt() {
-//     $('#createButtons').prop('hidden',true);
-//     $('#tableSdt').prop('hidden', false);
-//     editorType="TableSdt";
-// }
-//
-// function postListName() {
-//     fireAjaxSubmit(document.getElementById('listName').value);
-// }
-//
-// function postTableSdt() {
-//     var i;
-//     var numberOfColumns= document.getElementById('numberOfColumns').value;
-//     var resultString='';
-//     for (i = 0; i < numberOfColumns; i++) {
-//         resultString+=document.getElementById('cell'+i).value+'<|>';
-//     }
-//     fireAjaxSubmit(resultString);
-// }
-// function createHeaderRow() {
-//     var i;
-//     var numberOfColumns= document.getElementById('numberOfColumns').value;
-//     for (i = 0; i < numberOfColumns; i++) {
-//         var x = document.createElement('INPUT');
-//         x.setAttribute('type', 'text');
-//         x.setAttribute('id', 'cell'+i);
-//         document.getElementById('headerRow').appendChild(x);
-//     }
-//     $('#createHeaderRowButton').prop('hidden',true);
-// }

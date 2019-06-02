@@ -20,6 +20,9 @@
                         <div class="text-center text-justify col" th:text="${template.name}"></div>
                         <div class="text-center text-justify col" th:text="${template.dateOfCreation}"></div>
                         <div class="float-right col-auto">
+                            <form th:action="@{/documents/create/{templateId}(templateId=${template.id})}" method="post">
+                                <button class="btn btn-secondary col-auto ml-4">Create document</button>
+                            </form>
                             <a class="btn btn-secondary col-auto ml-4" th:href="@{/templates/{templateId}(templateId=${template.id})}" th:text="Edit"></a>
                             <a class="btn btn-secondary col-auto ml-4" th:href="@{/templates/{templateId}/delete(templateId=${template.id})}" th:text="Delete"></a>
                         </div>
