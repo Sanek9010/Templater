@@ -11,6 +11,12 @@ import org.docx4j.openpackaging.exceptions.InvalidFormatException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.WordprocessingML.NumberingDefinitionsPart;
 import org.docx4j.wml.RFonts;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
+import org.jsoup.safety.Whitelist;
+import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -49,13 +55,13 @@ public class TemplateService {
         List<DocTable> tables = tableRepository.findByTemplate(template);
         Map<Long,String> contentList = new HashMap<>();
         for (Paragraph p: paragraphs) {
-            contentList.put(p.getId(),p.getContentXml());
+            contentList.put(p.getNumberInTemplate(),p.getContentXml());
         }
         for (Picture picture: pictures) {
-            contentList.put(picture.getId(),picture.getLink());
+            contentList.put(picture.getNumberInTemplate(),picture.getLink());
         }
         for (DocTable table: tables) {
-            contentList.put(table.getId(),table.getContentXml());
+            contentList.put(table.getNumberInTemplate(),table.getContentXml());
         }
         return contentList;
     }
@@ -64,48 +70,63 @@ public class TemplateService {
         Map<Long,String> contentList = getAllParts(template);
         StringBuilder stringBuilder = new StringBuilder();
         contentList.forEach((aLong, s) -> stringBuilder.append(s));
-        String st = stringBuilder.toString().replace("&nbsp;","");
-        return "<div>"+st+"</div>";
+        String st = stringBuilder.toString();//.replace("&nbsp;","");
+        st  ="<div>"+st+"</div>";
+        return st;
     }
 
-    public String convertToDocx(Template template){
+    //убираем именованные сущности из html
+    public String getEscapedHtml(String htmlWithoutEntities) {
+        Tidy tidy = new Tidy();
+        tidy.setInputEncoding("UTF-8");
+        tidy.setOutputEncoding("UTF-8");
+        tidy.setPrintBodyOnly(true); // only print the content
+        tidy.setXmlOut(true); // to XML
+        tidy.setSmartIndent(false);
+        try {
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(htmlWithoutEntities.getBytes("UTF-8"));
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            tidy.parseDOM(inputStream, outputStream);
+            htmlWithoutEntities = outputStream.toString("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        htmlWithoutEntities = htmlWithoutEntities.replace("\r\n","");
+        return htmlWithoutEntities;
+    }
+
+    public String cleanHtml(String htmlWithoutEntities){
+        Document document = Jsoup.parse(htmlWithoutEntities);
+        document.select("button").remove();
+        htmlWithoutEntities = document.outerHtml();
+        Whitelist whitelist = Whitelist.relaxed();
+        htmlWithoutEntities = Jsoup.clean(htmlWithoutEntities,whitelist);
+        return htmlWithoutEntities;
+    }
+
+    public String convertToDocx(String escapedString){
+        escapedString = getEscapedHtml(escapedString);
         //convert to docx4j:
         // возможно это все можно заменить на AltChunkXHTMLRoundTrip из docx4j
         try {
             String baseURL = System.getProperty("user.dir");
             RFonts rfonts = Context.getWmlObjectFactory().createRFonts();
-            rfonts.setAscii("Century Gothic");
-            XHTMLImporterImpl.addFontMapping("Century Gothic", rfonts);
+            rfonts.setAscii("Times New Roman");
+            XHTMLImporterImpl.addFontMapping("Times New Roman", rfonts);
             WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.createPackage();
             NumberingDefinitionsPart ndp = new NumberingDefinitionsPart();
             wordMLPackage.getMainDocumentPart().addTargetPart(ndp);
             ndp.unmarshalDefaultNumbering();
             XHTMLImporterImpl XHTMLImporter = new XHTMLImporterImpl(wordMLPackage);
-
             XHTMLImporter.setHyperlinkStyle("Hyperlink");
-            //убираем именованные сущности из html
-            String htmlWithoutEntities = getTemplateXml(template);
-            Tidy tidy = new Tidy();
-            tidy.setInputEncoding("UTF-8");
-            tidy.setOutputEncoding("UTF-8");
-            tidy.setPrintBodyOnly(true); // only print the content
-            tidy.setXmlOut(true); // to XML
-            tidy.setSmartIndent(true);
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(htmlWithoutEntities.getBytes("UTF-8"));
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            tidy.parseDOM(inputStream, outputStream);
-            htmlWithoutEntities = outputStream.toString("UTF-8");
-
-
             wordMLPackage.getMainDocumentPart().getContent().addAll(
-                    XHTMLImporter.convert(htmlWithoutEntities, baseURL) );
+                    XHTMLImporter.convert(escapedString, baseURL) );
             String fileLocation = baseURL + "/OUT_from_XHTML.docx";
             wordMLPackage.save(new java.io.File(fileLocation) );
-
             System.out.println(
                     XmlUtils.marshaltoString(wordMLPackage.getMainDocumentPart().getJaxbElement(), true, true));
             return fileLocation;
-        } catch (JAXBException | Docx4JException | UnsupportedEncodingException e) {
+        } catch (JAXBException | Docx4JException e) {
             e.printStackTrace();
         }
         return null;//todo заменить на что нибудь нормальное
@@ -116,29 +137,31 @@ public class TemplateService {
         Template template;
         if(templateOpt.isPresent()){
             template = templateOpt.get();
-            template.setNumberOfParts(template.getNumberOfParts()+1);
         }else {
             template = new Template();//todo заменить на нормальную обработку
         }
 
         if(requestContent.getEditorType().equals("Paragraph")){
+            template.setNumberOfParts(template.getNumberOfParts()+1);
             Paragraph paragraph = new Paragraph();
             paragraph.setContentXml(requestContent.getContent());
-            paragraph.setId(template.getNumberOfParts());
+            paragraph.setNumberInTemplate(template.getNumberOfParts());
             paragraph.setTemplate(template);
             //todo добавить стиль параграфа
             return paragraphRepository.save(paragraph);
 
         } else if(requestContent.getEditorType().equals("Table")){
+            template.setNumberOfParts(template.getNumberOfParts()+1);
             DocTable table = new DocTable();
             table.setContentXml(requestContent.getContent());
-            table.setId(template.getNumberOfParts());
+            table.setNumberInTemplate(template.getNumberOfParts());
             table.setTemplate(template);
             //todo добавить стиль таблицы
             return tableRepository.save(table);
         } else if(requestContent.getEditorType().equals("Picture")){
+            template.setNumberOfParts(template.getNumberOfParts()+1);
             Picture picture = new Picture();
-            picture.setId(template.getNumberOfParts());
+            picture.setNumberInTemplate(template.getNumberOfParts());
             picture.setTemplate(template);
             //todo добавить ссылку
             return pictureRepository.save(picture);
@@ -147,12 +170,14 @@ public class TemplateService {
             placeholder.setTemplate(template);
             placeholder.setType(requestContent.getEditorType());
             placeholder.setName(requestContent.getContent());
+            placeholder.setFilled(false);
             return placeholderRepository.save(placeholder);
         } else if(requestContent.getEditorType().equals("SimpleSdt")){
             Placeholder placeholder = new Placeholder();
             placeholder.setTemplate(template);
             placeholder.setType(requestContent.getEditorType());
             placeholder.setName(requestContent.getContent());
+            placeholder.setFilled(false);
             return placeholderRepository.save(placeholder);//потом можно это объеденить с ListSdt
         }else{
             Placeholder placeholder = new Placeholder();
@@ -163,6 +188,7 @@ public class TemplateService {
             placeholder.setName(tableSdtHeader.getName());
             String st = gson.toJson(tableSdtHeader.getHeaders());
             placeholder.setContentXml(st);
+            placeholder.setFilled(false);
             return placeholderRepository.save(placeholder);
         }
     }

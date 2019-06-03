@@ -5,6 +5,7 @@ import javax.persistence.*;
 @Entity
 public class Paragraph {
     private Long id;
+    private Long numberInTemplate;
     private String contentXml;
     private Template template;
     private ParagraphStyle paragraphStyle;
@@ -37,12 +38,20 @@ public class Paragraph {
     }
 
     @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getNumberInTemplate() {
+        return numberInTemplate;
+    }
+
+    public void setNumberInTemplate(Long numberInTemplate) {
+        this.numberInTemplate = numberInTemplate;
     }
 }

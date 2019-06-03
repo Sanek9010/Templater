@@ -57,6 +57,7 @@ public class DocumentController {
     @RequestMapping(value = "/documents/create/{templateId}", method = RequestMethod.POST)
     public String createDocument(@AuthenticationPrincipal User user, @PathVariable Long templateId){
         Document document = documentService.createDocument(user,templateId);
+
         return "redirect:/documents/"+document.getId();
     }
 
@@ -67,8 +68,6 @@ public class DocumentController {
         if(documentOptional.isPresent()){
             Document document = documentService.addAllPlaceholders(documentOptional.get());
             model.put("document", document);
-//            Set<Placeholder> placeholderSet = document.getTemplate().getPlaceholders();
-//            model.put("placeholders",placeholderSet);
             return "document";
         } else {
             response.sendError(HttpStatus.NOT_FOUND.value(), "Document with id "+documentId+" not found");
@@ -80,7 +79,7 @@ public class DocumentController {
     public String updateDocumentHeader(@PathVariable Long documentId, @ModelAttribute Document document){
         Document savedTemplate = documentRepository.save(document);
         //todo реализовать редактирование шаблонов, и документов, В ДОКУМЕНТЫ ДОБАВИТЬ ВОЗМОЖНОСТЬ СКАЧАТЬ DOCX
-        return "redirect:/documents";
+        return "redirect:/documents/"+documentId;
     }
 
     @RequestMapping(value = "/documents/{documentId}/delete", method = RequestMethod.GET)
@@ -88,29 +87,29 @@ public class DocumentController {
         documentRepository.deleteById(documentId);
         return "redirect:/documents";
     }
-//
-//
-//    @RequestMapping(value = "/documents/{documentId}/getDocx", method = RequestMethod.GET)
-//    public ResponseEntity<Resource> getDocx(@PathVariable Long documentId, @ModelAttribute Template template) throws IOException {
-//        Optional<Template> templateOptional = templateRepo.findById(templateId);
-//        Template actualTemplate;
-//        if(templateOptional.isPresent()){
-//            actualTemplate=templateOptional.get();
-//        } else {
-//            actualTemplate=template;
-//        }
-//        File file = new File(templateService.convertToDocx(actualTemplate));
-//        Path path = Paths.get(file.getAbsolutePath());
-//        ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=template.docx");
-//        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
-//        headers.add("Pragma", "no-cache");
-//        headers.add("Expires", "0");
-//        return ResponseEntity.ok()
-//                .headers(headers)
-//                .contentLength(file.length())
-//                .contentType(MediaType.parseMediaType("application/octet-stream"))
-//                .body(resource);
-//    }
+
+
+    @RequestMapping(value = "/documents/{documentId}/getDocx", method = RequestMethod.GET)
+    public ResponseEntity<Resource> getDocx(@PathVariable Long documentId) throws IOException {
+        Optional<Document> documentOptional = documentRepository.findById(documentId);
+        Document actualDocument = new Document();
+        if(documentOptional.isPresent()){
+            actualDocument=documentOptional.get();
+        } else {
+            //todo вывести ошибку
+        }
+        File file = new File(documentService.convertToDocx(actualDocument));
+        Path path = Paths.get(file.getAbsolutePath());
+        ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=template.docx");
+        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        headers.add("Pragma", "no-cache");
+        headers.add("Expires", "0");
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(file.length())
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .body(resource);
+    }
 }

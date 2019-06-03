@@ -22,6 +22,9 @@ public class DocumentService {
     private TemplateRepository templateRepository;
     @Autowired
     private PlaceholderRepository placeholderRepository;
+    @Autowired
+    private TemplateService templateService;
+
 
     public Document createDocument(User user, Long templateId){
         Optional<Template> templateOptional = templateRepository.findById(templateId);
@@ -37,17 +40,44 @@ public class DocumentService {
     }
 
     public Document addAllPlaceholders(Document document){
-        if(document.getPlaceholders().size() == 0){
-            Set<Placeholder> placeholders = document.getTemplate().getPlaceholders();
-            for (Placeholder placeholder:placeholders) {
+        Set<Placeholder> placeholders = document.getTemplate().getPlaceholders();
+        boolean contain;
+        for (Placeholder placeholder:placeholders) {
+            contain = false;
+            for (Placeholder documentPlaceholder: document.getPlaceholders()) {
+                if(documentPlaceholder.getName().equals(placeholder.getName())){
+                    contain=true;
+                    break;
+                }
+            }
+            if(!contain){
                 Placeholder documentPlaceholder = new Placeholder();
                 documentPlaceholder.setContentXml(placeholder.getContentXml());
                 documentPlaceholder.setName(placeholder.getName());
                 documentPlaceholder.setType(placeholder.getType());
+                documentPlaceholder.setFilled(placeholder.getFilled());
                 documentPlaceholder.setDocument(document);
-                placeholderRepository.save(documentPlaceholder);
+                document.getPlaceholders().add(placeholderRepository.save(documentPlaceholder));
             }
-            return documentRepository.findById(document.getId()).get();
-        }else return document;
+
+        }
+        // здесь мб ошибка тк документу добавляю плейсхолдеры в коде а не беру с бд
+        return document;
+    }
+
+    public String convertToDocx(Document document){
+        try{
+            String templateHtml = templateService.getTemplateXml(document.getTemplate());
+            for (Placeholder placeholder: document.getPlaceholders()) {
+                String placeholderString = "{{type:"+ placeholder.getType() + ", name:"+ placeholder.getName()+"}}";
+                int i = templateHtml.indexOf(placeholderString);
+                templateHtml = templateHtml.replace(placeholderString, placeholder.getContentXml());
+            }
+            templateHtml = templateService.cleanHtml(templateHtml);
+            return templateService.convertToDocx(templateHtml);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 }

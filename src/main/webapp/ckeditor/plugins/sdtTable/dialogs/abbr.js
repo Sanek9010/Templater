@@ -50,11 +50,9 @@ CKEDITOR.dialog.add( 'insertSdtTable', function ( editor ) {
                                 });
                                 p.setStyle('border', '2px solid black');
                                 p.setStyle('background-color', '#e5e5e5');
-
                                 var test = dialog.getContentElement('tab-basic','tableRow').getElement();
                                 test.append(p);
                             }
-
                         }
                     },
                     {
@@ -79,6 +77,7 @@ CKEDITOR.dialog.add( 'insertSdtTable', function ( editor ) {
             for (i = 0; i < numberOfColumns; i++) {
                 array.push(document.getById('cell'+i).getValue());
             }
+            // var test = dialog.getContentElement('tab-basic','tableRow').getElement();
             var tableSdt = {};
             tableSdt.name = name;
             tableSdt.headers = array;

@@ -48,6 +48,7 @@
                     <input type="hidden" th:field="*{placeholders[__${i.index}__].type}"   />
                     <input type="hidden" th:field="*{placeholders[__${i.index}__].name}"   />
                     <input type="hidden" th:field="*{placeholders[__${i.index}__].document}" />
+                    <input type="hidden" th:field="*{placeholders[__${i.index}__].filled}" />
                     <div class="input-group-prepend col-12">
                         <span class="input-group-text" th:text="${placeholder.type}"></span>
                         <label for="dateOfCreation" class="input-group-text" th:text="${placeholder.name}"></label>
@@ -55,34 +56,48 @@
 
                     <div class="col-12 mt-2" th:if="${placeholder.type=='ListSdt'}"  th:id="${placeholder.name}">
                         <input type="hidden" th:field="*{placeholders[__${i.index}__].contentXml}" />
-                        <ol th:data="0" class="list-group" th:id="'List'+${i.index}+'lvl00'">
-                            <li class="list-group-item py-1" contenteditable>
+                        <div th:data="saved" th:if="${placeholder.filled}" th:utext="${placeholder.contentXml}">
 
-                            </li>
-                            <div th:id="'List'+${i.index}+'lvl00'+'buttonRow'" class="row">
-                                <button type="button" class="btn btn-primary btn-sm mt-1 ml-3"
-                                        th:attr="onclick=|addItem('List'+${i.index}+'lvl00')|">
-                                    Add item
-                                </button>
-                                <button type="button" class="btn btn-primary btn-sm mt-1 ml-3"
-                                        th:attr="onclick=|addInnerItem('List'+${i.index}+'lvl',0,0)|">
-                                    Add inner item
-                                </button>
-                            </div>
-                        </ol>
-                        <button type="button" class="btn btn-primary m-4"
-                                th:attr="onclick=|save('placeholders'+${i.index}+'.contentXml','List'+${i.index}+'lvl00')|">
+                        </div>
+                        <div th:if="${placeholder.filled == false}">
+                            <ol th:data="0"  th:id="'List'+${i.index}+'lvl0'">
+                                <li class="py-0 border-top border-bottom border-secondary " >
+                                    <div class="row">
+                                        <p contenteditable class="col m-0" >
+
+                                        </p>
+                                        <button type="button" class="btn btn-secondary btn-sm col-auto"
+                                                onclick="addItem(this)">
+                                            Add item
+                                        </button>
+                                        <button type="button" class="btn btn-secondary btn-sm col-auto"
+                                                onclick="addInnerItem(this)">
+                                            Add inner item
+                                        </button>
+                                    </div>
+                                </li>
+                            </ol>
+                        </div>
+                        <button type="button" class="btn btn-primary mt-1"
+                                th:attr="onclick=|save('placeholders'+${i.index}+'.contentXml','List'+${i.index}+'lvl0','placeholders'+${i.index})|">
                             Save</button>
                     </div>
                     <div class="col-12 mt-2" th:if="${placeholder.type=='TableSdt'}">
                         <input type="hidden" th:field="*{placeholders[__${i.index}__].contentXml}" />
-                        <table class="table table-bordered" th:data1="${placeholder.contentXml}" th:id="'Table'+${i.index}"></table>
-                        <button type="button" class="btn btn-primary m-4"
-                                th:attr="onclick=|addRow('${placeholder.contentXml}','Table'+'${i.index}')|">
+                        <div th:data="saved" th:if="${placeholder.filled}" th:utext="${placeholder.contentXml}">
+
+                        </div>
+                        <div th:if="${placeholder.filled == false}">
+                            <table class="table table-bordered" th:data1="${placeholder.contentXml}" th:id="'Table'+${i.index}">
+
+                            </table>
+                        </div>
+                        <button type="button" class="btn btn-primary mt-1"
+                                th:attr="onclick=|addRow('Table'+'${i.index}')|">
                             Add row
                         </button>
-                        <button type="button" class="btn btn-primary m-4"
-                                th:attr="onclick=|save('placeholders'+${i.index}+'.contentXml','Table'+${i.index})|">
+                        <button type="button" class="btn btn-primary mt-1"
+                                th:attr="onclick=|save('placeholders'+${i.index}+'.contentXml','Table'+${i.index},'placeholders'+${i.index})|">
                             Save</button>
                     </div>
                     <div class="col-12 mt-2" th:if="${placeholder.type=='SimpleSdt'}">
@@ -90,8 +105,11 @@
                     </div>
                 </div>
 
-                <div class = "form-group row col-3">
+                <div class = "form-group row col-6 m-3">
+                    <a href="/documents" class="btn btn-secondary m-4">Back</a>
+                    <a id="getDocx" class="btn btn-info m-4">Download docx</a>
                     <button type="submit" class="btn btn-primary m-4">Save document</button>
+
                 </div>
             </form>
 
@@ -109,8 +127,6 @@
 <!--                <button type="button" id="createTableButton" class="btn btn-secondary col-auto" onclick="createTable()">Add Table</button>-->
 <!--            </div>-->
 <!--            <a href="/templates" class="btn btn-secondary">Back</a>-->
-<!--            <a id="getDocx" class="btn btn-info ml-4">Download docx</a>-->
-
         </div>
     </div>
 </div>

@@ -1,6 +1,9 @@
 package com.templater.domain;
 
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import javax.persistence.*;
 import java.util.List;
 import java.util.Set;
@@ -14,7 +17,8 @@ public class Document {
     private User user;
     private List<Placeholder> placeholders;
 
-    @OneToMany(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER, mappedBy = "document")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "document")
+    @Fetch(FetchMode.SELECT)
     public List<Placeholder> getPlaceholders() {
         return placeholders;
     }

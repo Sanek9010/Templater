@@ -6,6 +6,7 @@ import javax.persistence.*;
 public class Picture {
     private String link;
     private Long id;
+    private Long numberInTemplate;
     private Template template;
 
 
@@ -27,12 +28,20 @@ public class Picture {
     }
 
     @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getNumberInTemplate() {
+        return numberInTemplate;
+    }
+
+    public void setNumberInTemplate(Long numberInTemplate) {
+        this.numberInTemplate = numberInTemplate;
     }
 }

@@ -15,11 +15,11 @@ function createParagraph() {
             { name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
             { name: 'editing', groups: [ 'find', 'selection', 'spellchecker', 'editing' ] },
             { name: 'forms', groups: [ 'forms' ] },
-            '/',
             { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
             { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi', 'paragraph' ] },
             { name: 'links', groups: [ 'links' ] },
             { name: 'insert', groups: [ 'insert' ] },
+            '/',
             { name: 'styles', groups: [ 'styles' ] },
             { name: 'colors', groups: [ 'colors' ] },
             { name: 'tools', groups: [ 'tools' ] },
@@ -27,7 +27,7 @@ function createParagraph() {
             { name: 'about', groups: [ 'about' ] }
         ],
         extraPlugins:'sdt, sdtList,sdtTable',
-        removeButtons: 'Source,NewPage,Preview,Print,Templates,Save,Cut,Copy,Paste,PasteText,PasteFromWord,Redo,Undo,Find,Replace,SelectAll,Scayt,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,Strike,RemoveFormat,CopyFormatting,Outdent,Indent,Blockquote,CreateDiv,JustifyLeft,JustifyCenter,JustifyRight,JustifyBlock,Language,BidiRtl,BidiLtr,Link,Unlink,Anchor,Flash,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,BGColor,TextColor,ShowBlocks,Maximize,About,Image,Table'
+        removeButtons: 'Source,Save,NewPage,Preview,Print,Templates,Cut,Copy,Paste,PasteText,PasteFromWord,Redo,Undo,Find,Replace,SelectAll,Scayt,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,Strike,CopyFormatting,RemoveFormat,Blockquote,CreateDiv,Indent,Outdent,Language,BidiRtl,BidiLtr,Link,Unlink,Anchor,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,BGColor,TextColor,Maximize,ShowBlocks,About,EasyImageUpload'
     });
     $('#createButtons').prop('hidden',true);
     // $('#createTableButton').prop('disabled', true);
@@ -90,6 +90,8 @@ function createTable() {
     editorType="Table";
 }
 function postPart() {
+    let numberOfParts = $('#numberOfParts').val()
+    $('#numberOfParts').val(++numberOfParts);
     fireAjaxSubmit(CKEDITOR.instances.editor.getData());
 }
 function fireAjaxSubmit(content) {

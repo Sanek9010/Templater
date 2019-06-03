@@ -10,6 +10,7 @@ public class Placeholder {
     private String contentXml;
     private Template template;
     private Document document;
+    private Boolean filled;
 
     @javax.persistence.Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -63,4 +64,14 @@ public class Placeholder {
     public void setDocument(Document document) {
         this.document = document;
     }
+
+
+    public Boolean getFilled() {
+        return filled;
+    }
+
+    public void setFilled(Boolean filled) {
+        this.filled = filled;
+    }
+
 }
