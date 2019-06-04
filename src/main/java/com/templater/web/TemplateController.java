@@ -91,7 +91,7 @@ public class TemplateController {
         } else {
             actualTemplate=template;
         }
-        String escapedHtml = templateService.getTemplateXml(template);
+        String escapedHtml = templateService.getTemplateXml(actualTemplate);
         File file = new File(templateService.convertToDocx(escapedHtml));
         Path path = Paths.get(file.getAbsolutePath());
         ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));

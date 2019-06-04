@@ -3,6 +3,7 @@ package com.templater.service;
 import com.google.gson.Gson;
 import com.templater.domain.*;
 import com.templater.repositories.*;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.docx4j.XmlUtils;
 import org.docx4j.convert.in.xhtml.XHTMLImporterImpl;
 import org.docx4j.jaxb.Context;
@@ -77,6 +78,9 @@ public class TemplateService {
 
     //убираем именованные сущности из html
     public String getEscapedHtml(String htmlWithoutEntities) {
+        //todo как то справиться с форматированием которое делает jTidy(вроде сделал но нужны тесты)
+
+
         Tidy tidy = new Tidy();
         tidy.setInputEncoding("UTF-8");
         tidy.setOutputEncoding("UTF-8");
@@ -92,6 +96,7 @@ public class TemplateService {
             e.printStackTrace();
         }
         htmlWithoutEntities = htmlWithoutEntities.replace("\r\n","");
+        htmlWithoutEntities = htmlWithoutEntities.trim().replaceAll(" +", " ");
         return htmlWithoutEntities;
     }
 
@@ -99,8 +104,9 @@ public class TemplateService {
         Document document = Jsoup.parse(htmlWithoutEntities);
         document.select("button").remove();
         htmlWithoutEntities = document.outerHtml();
-        Whitelist whitelist = Whitelist.relaxed();
-        htmlWithoutEntities = Jsoup.clean(htmlWithoutEntities,whitelist);
+        htmlWithoutEntities = htmlWithoutEntities.replace("<br>","\n");
+//        Whitelist whitelist = Whitelist.relaxed();
+//        htmlWithoutEntities = Jsoup.clean(htmlWithoutEntities,whitelist);
         return htmlWithoutEntities;
     }
 
