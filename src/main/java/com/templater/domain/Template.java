@@ -34,7 +34,7 @@ public class Template {
         this.documents = documents;
     }
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "template")
+    @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER, mappedBy = "template")
     public Set<Paragraph> getParagraphs() {
         return paragraphs;
     }
@@ -42,7 +42,7 @@ public class Template {
     public void setParagraphs(Set<Paragraph> paragraphs) {
         this.paragraphs = paragraphs;
     }
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "template")
+    @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER, mappedBy = "template")
     public Set<DocTable> getDocTables() {
         return docTables;
     }
@@ -50,7 +50,7 @@ public class Template {
     public void setDocTables(Set<DocTable> docTables) {
         this.docTables = docTables;
     }
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "template")
+    @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER, mappedBy = "template")
     public Set<Picture> getPictures() {
         return pictures;
     }

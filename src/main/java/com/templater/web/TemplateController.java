@@ -5,6 +5,7 @@ import com.templater.domain.Template;
 import com.templater.domain.User;
 import com.templater.repositories.TemplateRepository;
 import com.templater.service.TemplateService;
+import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -76,7 +77,6 @@ public class TemplateController {
 
     @RequestMapping(value = "/templates/{templateId}/delete", method = RequestMethod.GET)
     public String deleteTemplate(@PathVariable Long templateId){
-
         templateRepo.deleteById(templateId);
         return "redirect:/templates";
     }
@@ -91,8 +91,14 @@ public class TemplateController {
         } else {
             actualTemplate=template;
         }
-        String escapedHtml = templateService.getTemplateXml(actualTemplate);
-        File file = new File(templateService.convertToDocx(escapedHtml));
+        String baseURL = System.getProperty("user.dir");
+        String fileLocation = baseURL + "/OUT_from_XHTML.docx";
+        File file = new java.io.File(fileLocation);
+        try {
+            templateService.convertToDocx(actualTemplate).save(file);
+        } catch (Docx4JException e) {
+            e.printStackTrace();
+        }
         Path path = Paths.get(file.getAbsolutePath());
         ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
         HttpHeaders headers = new HttpHeaders();

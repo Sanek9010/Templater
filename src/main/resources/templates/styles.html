@@ -1,10 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Стили</title>
+    <script th:replace="fragments/header :: headerElement"></script>
 </head>
 <body>
+<div th:replace="fragments/header :: header"></div>
+<div class="container">
+    <div class="card mt-3">
+        <div class="card-header">
+            <h2>Стили</h2>
+        </div>
+        <div class="card-body">
+            <div th:if="${styles !=null}">
+                <div th:each="style : ${styles}">
+                    <!--@thymesVar id="template" type="com.templater.domain.Template"-->
+                    <div class = "form-row border border-secondary rounded m-2" >
+                        <div class="text-justify col" th:text="${style.name}"></div>
+                        <div class="float-right col-auto">
+                            <a class="btn btn-secondary col-auto ml-4" th:href="@{/styles/{styleId}(styleId=${style.id})}" th:text="Изменить"></a>
+                            <a class="btn btn-secondary col-auto ml-4" th:href="@{/styles/{styleId}/delete(styleId=${style.id})}" th:text="Удалить"></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
+            <form action="" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button class="btn btn-primary m">Создать новый стиль</button>
+            </form>
+        </div>
+    </div>
+</div>
 </body>
 </html>

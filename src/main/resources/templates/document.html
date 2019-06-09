@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta id="_csrf" name="_csrf" th:content="${_csrf.token}"/>
     <meta id="_csrf_header" name="_csrf_header" th:content="${_csrf.headerName}"/>
-    <title>Document</title>
+    <title>Документ</title>
     <script th:replace="fragments/header :: headerElement"></script>
     <script type="text/javascript" th:src="@{/js/scriptsDocument.js}"></script>
     <script th:inline="javascript" th:src="@{/js/thScripts.js}"></script>
@@ -15,7 +15,7 @@
 <div class="container" th:if="${document != null}">
     <div class="card mt-3">
         <div class="card-header">
-            <h2>Create document</h2>
+            <h2>Создание документа</h2>
         </div>
         <div class="card-body">
             <form th:object="${document}" action="" method="post" id="documentForm">
@@ -25,17 +25,20 @@
                 <input type="hidden" th:field="${document.template}"   />
                 <div class = "form-row col-12 border border-secondary rounded m-2 p-2">
                     <div class="input-group mb-3">
-                        <span th:text="${document.template.name}"></span>
+                        <div class="input-group-prepend">
+                            <label for="name" class="input-group-text">Шаблон:</label>
+                        </div>
+                        <span class="form-control" th:text="${document.template.name}"></span>
                     </div>
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
-                            <label for="name" class="input-group-text">Name:</label>
+                            <label for="name" class="input-group-text">Название:</label>
                         </div>
                         <input type="text" class="form-control" th:field="${document.name}"/>
                     </div>
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
-                            <label for="dateOfCreation" class="input-group-text">Date of creation:</label>
+                            <label for="dateOfCreation" class="input-group-text">Дата создания:</label>
                         </div>
                         <input type="text" class="form-control" th:field="${document.dateOfCreation}"/>
                     </div>
@@ -68,11 +71,11 @@
                                         </p>
                                         <button type="button" class="btn btn-secondary btn-sm col-auto"
                                                 onclick="addItem(this)">
-                                            Add item
+                                            Добавить элемент
                                         </button>
                                         <button type="button" class="btn btn-secondary btn-sm col-auto"
                                                 onclick="addInnerItem(this)">
-                                            Add inner item
+                                            Добавить вложенный список
                                         </button>
                                     </div>
                                 </li>
@@ -80,7 +83,7 @@
                         </div>
                         <button type="button" class="btn btn-primary mt-1"
                                 th:attr="onclick=|save('placeholders'+${i.index}+'.contentXml','List'+${i.index}+'lvl0','placeholders'+${i.index})|">
-                            Save</button>
+                            Сохранить</button>
                     </div>
                     <div class="col-12 mt-2" th:if="${placeholder.type=='TableSdt'}">
                         <input type="hidden" th:field="*{placeholders[__${i.index}__].contentXml}" />
@@ -106,9 +109,9 @@
                 </div>
 
                 <div class = "form-group row col-6 m-3">
-                    <a href="/documents" class="btn btn-secondary m-4">Back</a>
-                    <a id="getDocx" class="btn btn-info m-4">Download docx</a>
-                    <button type="submit" class="btn btn-primary m-4">Save document</button>
+                    <a href="/documents" class="btn btn-secondary m-4">Назад</a>
+                    <a id="getDocx" class="btn btn-info m-4">Скачать в формате docx</a>
+                    <button type="submit" class="btn btn-primary m-4">Сохранить документ</button>
 
                 </div>
             </form>

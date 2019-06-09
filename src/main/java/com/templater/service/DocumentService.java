@@ -74,7 +74,8 @@ public class DocumentService {
                 templateHtml = templateHtml.replace(placeholderString, placeholder.getContentXml());
             }
             templateHtml = templateService.cleanHtml(templateHtml);
-            return templateService.convertToDocx(templateHtml);
+            return null;
+            //return templateService.convertToDocx(templateHtml);
         } catch (Exception e){
             e.printStackTrace();
         }

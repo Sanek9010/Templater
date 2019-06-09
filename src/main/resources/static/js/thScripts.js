@@ -53,13 +53,13 @@ function addInnerItem(currentElement) {
     buttonLi.setAttribute('type','button');
     buttonLi.setAttribute('class','btn btn-secondary btn-sm col-auto');
     buttonLi.setAttribute('onclick','addItem(this)');
-    buttonLi.innerText = 'Add item';
+    buttonLi.innerText = 'Добавить элемент';
 
     var buttonOl = document.createElement('button');
     buttonOl.setAttribute('type','button');
     buttonOl.setAttribute('class','btn btn-secondary btn-sm col-auto');
     buttonOl.setAttribute('onclick','addInnerItem(this)');
-    buttonOl.innerText = 'Add inner item';
+    buttonOl.innerText = 'Добавить вложенный список';
 
 
     newDiv.appendChild(buttonLi);
@@ -68,57 +68,6 @@ function addInnerItem(currentElement) {
     newOl.appendChild(newLi);
     closestLi.appendChild(newOl);
 }
-
-// function addItem(parent) {
-//     var list = document.getElementById(parent);
-//     var item = document.createElement('LI');
-//     var buttonAddItem = document.getElementById(parent+'buttonRow');
-//     item.setAttribute('id',parent)
-//     item.setAttribute('contenteditable','true');
-//     item.setAttribute('class','list-group-item py-1');
-//     list.insertBefore(item, buttonAddItem);
-//
-// }
-
-// function addInnerItem(parent,lvl, count) {
-//     var list = document.getElementById(parent+lvl.toString()+count);
-//     var patentSelector= '#' + parent+ lvl.toString()+
-//     var parent = $(#)
-//     var itemOl = document.createElement('list-group');
-//     var parentCount = list.getAttribute('data');
-//     itemOl.setAttribute('id',parent+(lvl+1)+parentCount);
-//     itemOl.setAttribute('data', '0');
-//     itemOl.setAttribute('class','list-group-item');
-//     var itemLi = document.createElement('li');
-//     itemLi.setAttribute('contenteditable','true');
-//     itemLi.setAttribute('class','list-group-item py-1');
-//     itemOl.prepend(itemLi);
-//
-//     var buttonRow = document.createElement('div');
-//     buttonRow.setAttribute('class','row');
-//     buttonRow.setAttribute('id',parent+(lvl+1)+parentCount+'buttonRow');
-//
-//     var buttonLi = document.createElement('button');
-//     buttonLi.setAttribute('type','button');
-//     buttonLi.setAttribute('class','btn btn-sm btn-primary mt-1 ml-3');
-//     buttonLi.setAttribute('onclick','addItem(\''+parent+(lvl+1).toString()+parentCount+'\')');
-//     buttonLi.innerText = 'Add item';
-//     buttonRow.appendChild(buttonLi);
-//
-//     var buttonOL = document.createElement('button');
-//     buttonOL.setAttribute('type','button');
-//     buttonOL.setAttribute('class','btn btn-sm btn-primary mt-1 ml-3');
-//     buttonOL.setAttribute('onclick','addInnerItem(\''+parent+'\','+(lvl+1)+','+parentCount+')');
-//     buttonOL.innerText = 'Add inner item';
-//
-//     buttonRow.appendChild(buttonOL);
-//     itemOl.appendChild(buttonRow);
-//
-//
-//     var buttonAddItem = document.getElementById(parent+lvl.toString()+count+'buttonRow');
-//     list.setAttribute('data',(++parentCount).toString());
-//     list.insertBefore(itemOl, buttonAddItem);
-// }
 
 function onLoadTable(){
     let numberOfPlaceholders = $("#numberOfPlaceholders").attr('data');

@@ -3,7 +3,7 @@ package com.templater.domain;
 import javax.persistence.*;
 
 @Entity
-public class Paragraph {
+public class Paragraph implements Part {
     private Long id;
     private Long numberInTemplate;
     private String contentXml;

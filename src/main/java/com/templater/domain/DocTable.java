@@ -3,7 +3,7 @@ package com.templater.domain;
 import javax.persistence.*;
 
 @Entity
-public class DocTable {
+public class DocTable implements Part {
 
     private Long id;
     private Long numberInTemplate;

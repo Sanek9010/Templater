@@ -25,7 +25,24 @@
 </div>
 
 <div th:fragment="templateXml" >
-    <div th:utext="${templateXmlText}"></div>
+    <!--@thymesVar id="templateXmlMap" type="Map<Long,String>"-->
+    <div th:id="${entry.key}" class="row border-top border-bottom" th:each="entry:${templateXmlMap.entrySet()}" >
+        <div th:id="${entry.key}+textarea" class="col-10" style="margin: 0;" th:utext="${entry.value.getContentXml()}"></div>
+        <div class="col-2 row">
+            <button type="button" th:id="${entry.key}+deleteButton" style="height: 30px; width:30px; padding:0"  class="btn btn btn-light btn-sm mt-2 mr-2 border border-secondary" th:onclick="'deletePart('+${entry.key}+')'"><img th:src="@{/img/baseline_delete_black_18dp.png}" alt="Удалить" /></button>
+            <button type="button" th:id="${entry.key}+editButton" style="height: 30px; width:30px; padding:0" class="btn btn btn-light btn-sm mt-2 mr-2 border border-secondary" th:onclick="'editPart('+${entry.key}+')'"><img th:src="@{/img/baseline_edit_black_18dp.png}" alt="Изменить" /></button>
+            <button type="button" th:id="${entry.key}+addButton" style="height: 30px; width:30px; padding:0" class="btn btn btn-light btn-sm mt-2 mr-2 border border-secondary" th:onclick="'addPart('+${entry.key}+')'"><img th:src="@{/img/baseline_add_circle_black_18dp.png}" alt="Добавить" /></button>
+            <button type="button" th:id="${entry.key}+saveButton" style="height: 30px; width:30px; padding:0" class="btn btn-primary btn-sm mt-2 mr-2 border border-secondary" th:onclick="'postEditedPart('+${entry.key}+')'" hidden><img th:src="@{/img/baseline_save_black_18dp.png}" alt="Сохранить"/></button>
+        </div>
+    </div>
+</div>
+
+<div th:fragment="selectStyle" >
+    <select id="selectedStyle">
+        <option th:each="style:${styles}"
+                th:value="${style.id}"
+                th:text="${style.name}"></option>
+    </select>
 </div>
 
 

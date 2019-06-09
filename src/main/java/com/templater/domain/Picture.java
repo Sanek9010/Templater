@@ -3,8 +3,8 @@ package com.templater.domain;
 import javax.persistence.*;
 
 @Entity
-public class Picture {
-    private String link;
+public class Picture implements Part {
+    private String contentXml;
     private Long id;
     private Long numberInTemplate;
     private Template template;
@@ -19,12 +19,12 @@ public class Picture {
         this.template = template;
     }
 
-    public String getLink() {
-        return link;
+    public String getContentXml() {
+        return contentXml;
     }
 
-    public void setLink(String link) {
-        this.link = link;
+    public void setContentXml(String contentXml) {
+        this.contentXml = contentXml;
     }
 
     @Id

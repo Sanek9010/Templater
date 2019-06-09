@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Template</title>
+    <title>Шаблоны</title>
     <script th:replace="fragments/header :: headerElement"></script>
 </head>
 <body>
@@ -10,30 +10,37 @@
 <div class="container">
     <div class="card mt-3">
         <div class="card-header">
-            <h2>Templates</h2>
+            <h2>Мои шаблоны</h2>
         </div>
-        <div class="card-body">
+        <div  class="card-body">
             <div th:if="${templates !=null}">
+                <div class="row ml-2 mr-2">
+                    <p class="text-center text-justify col-4" >Название</p>
+                    <p class="text-center text-justify col-3" >Дата создания</p>
+                </div>
                 <div th:each="template : ${templates}">
                     <!--@thymesVar id="template" type="com.templater.domain.Template"-->
                     <div class = "form-row border border-secondary rounded m-2" >
-                        <div class="text-center text-justify col" th:text="${template.name}"></div>
-                        <div class="text-center text-justify col" th:text="${template.dateOfCreation}"></div>
-                        <div class="float-right col-auto">
+                        <div class="text-center text-justify col-4" th:text="${template.name}"></div>
+                        <div class="text-center text-justify col-3" th:text="${template.dateOfCreation}"></div>
+                        <div class="row float-right col-auto">
                             <form th:action="@{/documents/create/{templateId}(templateId=${template.id})}" method="post">
-                                <button class="btn btn-secondary col-auto ml-4">Create document</button>
+                                <button class="btn btn-secondary btn-sm col-auto ml-2">Создать документ</button>
                             </form>
-                            <a class="btn btn-secondary col-auto ml-4" th:href="@{/templates/{templateId}(templateId=${template.id})}" th:text="Edit"></a>
-                            <a class="btn btn-secondary col-auto ml-4" th:href="@{/templates/{templateId}/delete(templateId=${template.id})}" th:text="Delete"></a>
+                            <a class="btn btn-secondary btn-sm col-auto ml-2" th:href="@{/templates/{templateId}(templateId=${template.id})}" >Создать шаблон</a>
+                            <a class="btn btn-secondary btn-sm col-auto ml-2" th:href="@{/templates/{templateId}(templateId=${template.id})}" th:text="Изменить"></a>
+                            <a class="btn btn-secondary btn-sm col-auto ml-2" th:href="@{/templates/{templateId}/delete(templateId=${template.id})}" th:text="Удалить"></a>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <form action="" method="post">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                <button class="btn btn-primary m">Create new template</button>
-            </form>
+            <div class="row">
+                <form action="" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button class="btn btn-primary">Создать новый шаблон</button>
+                </form>
+                <a class="btn btn-secondary ml-2" href="/" > Все шаблоны</a>
+            </div>
         </div>
     </div>
 </div>
