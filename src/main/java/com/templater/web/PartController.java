@@ -13,13 +13,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Controller
 @RequestMapping("/templates/{templateId}")
@@ -43,7 +41,7 @@ public class PartController {
     @RequestMapping(value = "getParts", method = RequestMethod.GET)
     public String getParts(@PathVariable Long templateId, ModelMap modelMap){
         Optional<Template> templateOpt = templateRepo.findById(templateId);
-        Map<Long, Part> templateXml = new HashMap<>();
+        Map<Long, Part> templateXml = new TreeMap<>();
         if(templateOpt.isPresent())
             templateXml = templateService.getAllParts(templateOpt.get());
         modelMap.put("templateXmlMap", templateXml);
@@ -59,7 +57,17 @@ public class PartController {
 
     @RequestMapping(value = "create", method = RequestMethod.POST)
     public ResponseEntity<?> createPart(@PathVariable Long templateId, @RequestBody RequestContent requestContent, HttpServletResponse response) throws IOException {
-        //todo использовать выбраный стиль
+        //todo использовать выбраный стиль таблиц
+        templateService.savePart(requestContent,templateId);
+        return ResponseEntity.ok("done");
+    }
+
+    @RequestMapping(value = "createPicture/{key}", method = RequestMethod.POST)
+    public ResponseEntity<?> createPicture(@PathVariable Long templateId, @PathVariable Long key, @RequestParam("picture") MultipartFile picture, HttpServletResponse response) throws IOException {
+        RequestContent requestContent = new RequestContent();
+        requestContent.setEditorType("Picture");
+        requestContent.setNumberOfPart(key);
+        requestContent.setPicture(picture.getBytes());
         templateService.savePart(requestContent,templateId);
         return ResponseEntity.ok("done");
     }

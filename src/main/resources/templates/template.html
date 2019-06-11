@@ -35,31 +35,38 @@
                     <div class="ml-2">
                         <input type="text" class="form-control" th:field="${template.dateOfCreation}"/>
                     </div>
+                    <button type="submit" class="btn btn-primary ml-4">Сохранить</button>
                 </div>
+            </form>
 
-                <div style="overflow-y:scroll; overflow-x:visible; height: 400px; resize:vertical;" class="card col-12 m-1" id="partsList">
+<!--                <div style="overflow-y:scroll; overflow-x:visible; height: 400px; resize:vertical;" class="card col-12 m-1" id="partsList">-->
+<!--                </div>-->
+
+                <div class="card col-12 m-1" id="partsList"></div>
+
+                <div id="createPart">
+                    <div id="paragraphForm" class="card" hidden>
+                        <textarea name="content" id="editor" hidden>
+                        </textarea>
+                        <form action="/createPicture" id="picture" method="post" enctype="multipart/form-data" hidden>
+                            <input type="file"  class="form-control" name="picture" />
+                        </form>
+                        <button type="button" id="postEditor" class="btn btn-primary" onclick="postPart()">Сохранить</button>
+                    </div>
+
+                    <div class="btn-group row m-3 col-auto" role="group" aria-label="Basic example" id="createButtons">
+                        <button type="button" id="createParagraphButton" class="btn btn-secondary col-auto" onclick="createParagraph0()" >Добавить параграф</button>
+                        <button type="button" id="createPictureButton" class="btn btn-secondary col-auto" onclick="createPicture0()">Добавить изображение</button>
+                        <button type="button" id="createTableButton" class="btn btn-secondary col-auto" onclick="createTable0()">Добавить таблицу</button>
+                    </div>
                 </div>
-
-                <div id="paragraphForm" class="card" hidden>
-                    <textarea name="content" id="editor" hidden>
-                    </textarea>
-                    <p id="currentStyle" hidden></p>
-                    <button type="button" id="postEditor" class="btn btn-primary" onclick="postPart()">Сохранить</button>
-                </div>
-
-                <div class="btn-group row m-3 col-auto" role="group" aria-label="Basic example" id="createButtons">
-                    <button type="button" id="createParagraphButton" class="btn btn-secondary col-auto" onclick="createParagraph()" >Добавить параграф</button>
-                    <button type="button" id="createPictureButton" class="btn btn-secondary col-auto" onclick="createPicture()">Добавить изображение</button>
-                    <button type="button" id="createTableButton" class="btn btn-secondary col-auto" onclick="createTable()">Добавить таблицу</button>
-                </div>
-
+                <p id="key" hidden></p>
+                <p id="currentStyle" hidden></p>
 
                 <div class = "form-group row m-3 col-6">
                     <a href="/templates" class="btn btn-secondary">Назад</a>
                     <a id="getDocx" class="btn btn-info ml-4">Скачать в формате docx</a>
-                    <button type="submit" class="btn btn-primary ml-4">Сохранить шаблон</button>
                 </div>
-            </form>
         </div>
     </div>
 </div>

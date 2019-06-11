@@ -1,6 +1,7 @@
 package com.templater.web;
 
 import com.templater.domain.Document;
+import com.templater.domain.Part;
 import com.templater.domain.Template;
 import com.templater.domain.User;
 import com.templater.repositories.TemplateRepository;
@@ -28,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -72,7 +74,7 @@ public class TemplateController {
     @RequestMapping(value = "/templates/{templateId}", method = RequestMethod.POST)
     public String updateTemplate(@PathVariable Long templateId, @ModelAttribute Template template){
         Template savedTemplate = templateService.save(template);
-        return "redirect:/templates";
+        return "redirect:/templates/"+templateId;
     }
 
     @RequestMapping(value = "/templates/{templateId}/delete", method = RequestMethod.GET)
@@ -95,7 +97,8 @@ public class TemplateController {
         String fileLocation = baseURL + "/OUT_from_XHTML.docx";
         File file = new java.io.File(fileLocation);
         try {
-            templateService.convertToDocx(actualTemplate).save(file);
+            Map<Long, Part> parts = templateService.getAllParts(actualTemplate);
+            templateService.convertToDocx(parts, actualTemplate).save(file);
         } catch (Docx4JException e) {
             e.printStackTrace();
         }

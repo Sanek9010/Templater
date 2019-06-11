@@ -7,6 +7,7 @@ import com.templater.domain.User;
 import com.templater.repositories.DocumentRepository;
 import com.templater.repositories.TemplateRepository;
 import com.templater.service.DocumentService;
+import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -98,7 +99,14 @@ public class DocumentController {
         } else {
             //todo вывести ошибку
         }
-        File file = new File(documentService.convertToDocx(actualDocument));
+        String baseURL = System.getProperty("user.dir");
+        String fileLocation = baseURL + "/OUT_from_XHTML.docx";
+        File file = new java.io.File(fileLocation);
+        try {
+            documentService.convertToDocx(actualDocument).save(file);
+        } catch (Docx4JException e) {
+            e.printStackTrace();
+        }
         Path path = Paths.get(file.getAbsolutePath());
         ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
         HttpHeaders headers = new HttpHeaders();

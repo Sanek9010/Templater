@@ -54,4 +54,16 @@ public class Paragraph implements Part {
     public void setNumberInTemplate(Long numberInTemplate) {
         this.numberInTemplate = numberInTemplate;
     }
+
+    @Transient
+    @Override
+    public String getType() {
+        return "Paragraph";
+    }
+
+    @Transient
+    @Override
+    public String getPicture() {
+        return "";
+    }
 }

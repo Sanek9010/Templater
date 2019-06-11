@@ -1,15 +1,14 @@
 package com.templater.service;
 
-import com.templater.domain.Document;
-import com.templater.domain.Placeholder;
-import com.templater.domain.Template;
-import com.templater.domain.User;
+import com.templater.domain.*;
 import com.templater.repositories.DocumentRepository;
 import com.templater.repositories.PlaceholderRepository;
 import com.templater.repositories.TemplateRepository;
+import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -65,17 +64,24 @@ public class DocumentService {
         return document;
     }
 
-    public String convertToDocx(Document document){
+    public WordprocessingMLPackage convertToDocx(Document document){
         try{
-            String templateHtml = templateService.getTemplateXml(document.getTemplate());
-            for (Placeholder placeholder: document.getPlaceholders()) {
-                String placeholderString = "{{type:"+ placeholder.getType() + ", name:"+ placeholder.getName()+"}}";
-                int i = templateHtml.indexOf(placeholderString);
-                templateHtml = templateHtml.replace(placeholderString, placeholder.getContentXml());
+//            String templateHtml = templateService.getTemplateXml(document.getTemplate());
+//            for (Placeholder placeholder: document.getPlaceholders()) {
+//                String placeholderString = "{{type:"+ placeholder.getType() + ", name:"+ placeholder.getName()+"}}";
+//                int i = templateHtml.indexOf(placeholderString);
+//                templateHtml = templateHtml.replace(placeholderString, placeholder.getContentXml());
+//            }
+//            templateHtml = templateService.cleanHtml(templateHtml);
+            Map<Long, Part> parts = templateService.getAllParts(document.getTemplate());
+            for (Part part:parts.values()) {
+                for (Placeholder placeholder: document.getPlaceholders()) {
+                    String placeholderString = "{{type:"+ placeholder.getType() + ", name:"+ placeholder.getName()+"}}";
+                    int i = part.getContentXml().indexOf(placeholderString);
+                    part.setContentXml(templateService.cleanHtml(part.getContentXml().replace(placeholderString, placeholder.getContentXml())));
+                }
             }
-            templateHtml = templateService.cleanHtml(templateHtml);
-            return null;
-            //return templateService.convertToDocx(templateHtml);
+            return templateService.convertToDocx(parts,document.getTemplate());
         } catch (Exception e){
             e.printStackTrace();
         }

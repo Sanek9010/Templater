@@ -4,6 +4,8 @@ public class RequestContent{
     private String editorType;
     private String content;
     private String styleId;
+    private Long numberOfPart;
+    private byte[] picture;
 
     public String getEditorType() {
         return editorType;
@@ -27,5 +29,21 @@ public class RequestContent{
 
     public void setStyleId(String styleId) {
         this.styleId = styleId;
+    }
+
+    public Long getNumberOfPart() {
+        return numberOfPart;
+    }
+
+    public void setNumberOfPart(Long numberOfPart) {
+        this.numberOfPart = numberOfPart;
+    }
+
+    public byte[] getPicture() {
+        return picture;
+    }
+
+    public void setPicture(byte[] picture) {
+        this.picture = picture;
     }
 }

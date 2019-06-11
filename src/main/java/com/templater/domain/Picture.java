@@ -1,5 +1,6 @@
 package com.templater.domain;
 
+import java.util.Base64;
 import javax.persistence.*;
 
 @Entity
@@ -8,6 +9,7 @@ public class Picture implements Part {
     private Long id;
     private Long numberInTemplate;
     private Template template;
+    private byte[] pictureFile;
 
 
     @ManyToOne
@@ -43,5 +45,27 @@ public class Picture implements Part {
 
     public void setNumberInTemplate(Long numberInTemplate) {
         this.numberInTemplate = numberInTemplate;
+    }
+
+    @Lob
+    public byte[] getPictureFile() {
+        return pictureFile;
+    }
+
+    public void setPictureFile(byte[] pictureFile) {
+        this.pictureFile = pictureFile;
+    }
+
+    @Transient
+    @Override
+    public String getType() {
+        return "Picture";
+    }
+
+    @Transient
+    @Override
+    public String getPicture() {
+        byte[] encoded = Base64.getEncoder().encode(getPictureFile());
+        return new String(encoded);
     }
 }

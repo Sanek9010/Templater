@@ -6,9 +6,11 @@ import com.templater.repositories.*;
 import org.docx4j.XmlUtils;
 import org.docx4j.convert.in.xhtml.FormattingOption;
 import org.docx4j.convert.in.xhtml.XHTMLImporterImpl;
+import org.docx4j.dml.wordprocessingDrawing.Inline;
 import org.docx4j.jaxb.Context;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
+import org.docx4j.openpackaging.parts.WordprocessingML.BinaryPartAbstractImage;
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.docx4j.openpackaging.parts.WordprocessingML.StyleDefinitionsPart;
 import org.docx4j.wml.*;
@@ -40,6 +42,7 @@ public class TemplateService {
     private PlaceholderRepository placeholderRepository;
     @Autowired
     private ParagraphStyleRepository paragraphStyleRepository;
+    private XHTMLImporterImpl xhtmlImporter;
 
 
     public Template save(Template template){
@@ -50,7 +53,7 @@ public class TemplateService {
         List<Paragraph> paragraphs = paragraphRepository.findByTemplate(template);
         List<Picture> pictures = pictureRepository.findByTemplate(template);
         List<DocTable> tables = tableRepository.findByTemplate(template);
-        Map<Long,Part> contentList = new HashMap<>();
+        Map<Long,Part> contentList = new TreeMap<>();
         for (Paragraph p: paragraphs) {
             contentList.put(p.getNumberInTemplate(),p);
         }
@@ -89,7 +92,7 @@ public class TemplateService {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        htmlWithoutEntities = htmlWithoutEntities.replace("\r\n","");
+        htmlWithoutEntities = htmlWithoutEntities.replaceAll("\r\n"," ");
         htmlWithoutEntities = htmlWithoutEntities.trim().replaceAll(" +", " ");
         return htmlWithoutEntities;
     }
@@ -104,43 +107,99 @@ public class TemplateService {
         return htmlWithoutEntities;
     }
 
-    public List<Object> getPartsInXml(Map<Long,Part> parts, XHTMLImporterImpl XHTMLImporter) throws Docx4JException {
+    public org.docx4j.wml.P newImage( WordprocessingMLPackage wordMLPackage,
+                                             byte[] bytes,
+                                             String filenameHint, String altText,
+                                             int id1, int id2) throws Exception {
+
+        BinaryPartAbstractImage imagePart = BinaryPartAbstractImage.createImagePart(wordMLPackage, bytes);
+
+        Inline inline = imagePart.createImageInline( filenameHint, altText,
+                id1, id2, false);
+
+        // Now add the inline in w:p/w:r/w:drawing
+        org.docx4j.wml.ObjectFactory factory = Context.getWmlObjectFactory();
+        org.docx4j.wml.P  p = factory.createP();
+        org.docx4j.wml.R  run = factory.createR();
+        p.getContent().add(run);
+        org.docx4j.wml.Drawing drawing = factory.createDrawing();
+        run.getContent().add(drawing);
+        drawing.getAnchorOrInline().add(inline);
+
+        return p;
+
+    }
+
+    public List<Object> getPartsInXml(Map<Long,Part> parts, XHTMLImporterImpl XHTMLImporter, WordprocessingMLPackage wordMLPackage) throws Docx4JException {
         String baseURL = System.getProperty("user.dir");
         List<Object> result= new ArrayList<>();
         List<Object> old = new ArrayList<>();
         ObjectFactory factory = Context.getWmlObjectFactory();
         for (Map.Entry<Long,Part> part: parts.entrySet()) {
-            String escapedPart = getEscapedHtml(part.getValue().getContentXml());
-            List<Object> objects1 =  XHTMLImporter.convert(escapedPart, baseURL);
-            List<Object> objects = new ArrayList<>();
-            for (int i = (objects1.size() - old.size()); i > 0; i--) {
-                objects.add(objects1.get(objects1.size()-i));
-            }
-            for (Object o:objects) {
-                if(o instanceof P){
-                    P p = (P)o;
-                    PPr pPr = factory.createPPr();
-                    PPrBase.PStyle pStyle = factory.createPPrBasePStyle();
-                    pStyle.setVal(((Paragraph) part.getValue()).getParagraphStyle().getName());
-                    pPr.setPStyle(pStyle);
-                    pPr.setRPr(factory.createParaRPr());
-                    p.setPPr(pPr);
-                    for (Object pElement:p.getContent()) {
-                        if(pElement instanceof R){
-                            R r = (R)pElement;
-                            //убираем fonts которые пришли с html
-                            r.getRPr().setRFonts(factory.createRFonts());
-                        }
-                    }
-                    result.add(p);
-                }else if(o instanceof Tbl){
-                    result.add(o);
+            if(part.getValue() instanceof Picture){
+                String filenameHint = null;
+                String altText = (part.getValue()).getContentXml();
+                int id1 = 0;
+                int id2 = 1;
+                // Image 1: no width specified
+                try {
+                    result.add(newImage( wordMLPackage, ((Picture)(part.getValue())).getPictureFile(),
+                            filenameHint, altText,
+                            id1, id2 ));
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+            } else {
+                String escapedPart = "<div>"+getEscapedHtml(part.getValue().getContentXml())+"</div>";
+                List<Object> objects1 =  XHTMLImporter.convert(escapedPart, baseURL);
+                List<Object> objects = new ArrayList<>();
+                for (int i = (objects1.size() - old.size()); i > 0; i--) {
+                    objects.add(objects1.get(objects1.size()-i));
+                }
+                for (Object o:objects) {
+                    if(o instanceof P){
+                        P p = (P)o;
+                        PPr pPr = p.getPPr();
+                        if(pPr.getJc().getVal()==JcEnumeration.LEFT){
+                            pPr.setJc(null);
+                        }
+                        pPr.setSpacing(null);
+                        pPr.setInd(null);
+                        if(part.getValue() instanceof Paragraph) {
+                            PPrBase.PStyle pStyle = factory.createPPrBasePStyle();
+                            pStyle.setVal(((Paragraph) part.getValue()).getParagraphStyle().getName());
+                            pPr.setPStyle(pStyle);
+                        }
+                        pPr.setRPr(factory.createParaRPr());
+                        p.setPPr(pPr);
+                        for (Object pElement:p.getContent()) {
+                            if(pElement instanceof R){
+                                R r = (R)pElement;
+                                try {
+                                    RPr rPr = r.getRPr();
+                                    RPr newRPr = factory.createRPr();
+                                    newRPr.setI(rPr.getI());
+                                    newRPr.setB(rPr.getB());
+                                    newRPr.setU(rPr.getU());
+                                    newRPr.setPosition(rPr.getPosition());
+                                    r.setRPr(newRPr);
+                                }catch (Exception e){
+                                    //e.printStackTrace();
+                                }
+                                //убираем fonts которые пришли с html
+                            }
+                        }
+                        result.add(p);
+                    }else if(o instanceof Tbl){
+                        result.add(o);
+                    }
+                }
+                old.clear();
+                old.addAll(objects1);
             }
-            old.clear();
-            old.addAll(objects1);
         }
         return result;
+
     }
 
     public void addStyles(WordprocessingMLPackage wordMLPackage,Template template){
@@ -157,8 +216,8 @@ public class TemplateService {
 
     }
 
-    public WordprocessingMLPackage convertToDocx(Template template){
-        Map<Long,Part> parts = getAllParts(template);
+    public WordprocessingMLPackage convertToDocx(Map<Long,Part> parts, Template template){
+//        Map<Long,Part> parts = getAllParts(template);
         //convert to docx4j:
         // возможно это все можно заменить на AltChunkXHTMLRoundTrip из docx4j
         try {
@@ -171,10 +230,10 @@ public class TemplateService {
             //NumberingDefinitionsPart ndp = new NumberingDefinitionsPart();
             //wordMLPackage.getMainDocumentPart().addTargetPart(ndp);
             //ndp.unmarshalDefaultNumbering();
-            XHTMLImporterImpl XHTMLImporter = new XHTMLImporterImpl(wordMLPackage);
+            XHTMLImporterImpl xhtmlImporter = new XHTMLImporterImpl(wordMLPackage);
             //XHTMLImporter.setRunFormatting(FormattingOption.CLASS_TO_STYLE_ONLY);
             //XHTMLImporter.setHyperlinkStyle("Hyperlink");
-            List<Object> convert = getPartsInXml(parts,XHTMLImporter);
+            List<Object> convert = getPartsInXml(parts,xhtmlImporter,wordMLPackage);
             wordMLPackage.getMainDocumentPart().getContent().addAll(convert);
             //String fileLocation = baseURL + "/OUT_from_XHTML.docx";
             //wordMLPackage.save(new java.io.File(fileLocation) );
@@ -195,31 +254,52 @@ public class TemplateService {
         }else {
             template = new Template();//todo заменить на нормальную обработку
         }
+        if(requestContent.getEditorType().equals("Paragraph")||
+                requestContent.getEditorType().equals("Table")||
+                requestContent.getEditorType().equals("Picture")){
+            Map<Long, Part> allParts = getAllParts(template);
+            allParts.forEach((aLong, part) -> {
+                if(part.getNumberInTemplate()>=requestContent.getNumberOfPart()){
+                    if(part instanceof Paragraph){
+                        Paragraph paragraph = (Paragraph)part;
+                        paragraph.setNumberInTemplate(paragraph.getNumberInTemplate()+1);
+                        paragraphRepository.save(paragraph);
+                    } else if(part instanceof DocTable){
+                        DocTable table = (DocTable)part;
+                        table.setNumberInTemplate(table.getNumberInTemplate()+1);
+                        tableRepository.save(table);
+                    } else if(part instanceof Picture){
+                        Picture picture = (Picture)part;
+                        picture.setNumberInTemplate(picture.getNumberInTemplate()+1);
+                        pictureRepository.save(picture);
+                    }
+                }
+            });
+        }
 
         if(requestContent.getEditorType().equals("Paragraph")){
             template.setNumberOfParts(template.getNumberOfParts()+1);
             Paragraph paragraph = new Paragraph();
             paragraph.setContentXml(requestContent.getContent());
-            paragraph.setNumberInTemplate(template.getNumberOfParts());
+            paragraph.setNumberInTemplate( requestContent.getNumberOfPart());
             paragraph.setTemplate(template);
             paragraph.setParagraphStyle(paragraphStyleRepository.findById(Long.parseLong(requestContent.getStyleId())).get());
             //todo добавить стиль параграфа
             return paragraphRepository.save(paragraph);
-
         } else if(requestContent.getEditorType().equals("Table")){
             template.setNumberOfParts(template.getNumberOfParts()+1);
             DocTable table = new DocTable();
             table.setContentXml(requestContent.getContent());
-            table.setNumberInTemplate(template.getNumberOfParts());
+            table.setNumberInTemplate(requestContent.getNumberOfPart());
             table.setTemplate(template);
             //todo добавить стиль таблицы
             return tableRepository.save(table);
         } else if(requestContent.getEditorType().equals("Picture")){
             template.setNumberOfParts(template.getNumberOfParts()+1);
             Picture picture = new Picture();
-            picture.setNumberInTemplate(template.getNumberOfParts());
+            picture.setNumberInTemplate(requestContent.getNumberOfPart());
             picture.setTemplate(template);
-            //todo добавить ссылку
+            picture.setPictureFile(requestContent.getPicture());
             return pictureRepository.save(picture);
         } else if(requestContent.getEditorType().equals("ListSdt")){
             Placeholder placeholder = new Placeholder();
@@ -235,7 +315,14 @@ public class TemplateService {
             placeholder.setName(requestContent.getContent());
             placeholder.setFilled(false);
             return placeholderRepository.save(placeholder);//потом можно это объеденить с ListSdt
-        }else{
+        } else if(requestContent.getEditorType().equals("PictureSdt")){
+            Placeholder placeholder = new Placeholder();
+            placeholder.setTemplate(template);
+            placeholder.setType(requestContent.getEditorType());
+            placeholder.setName(requestContent.getContent());
+            placeholder.setFilled(false);
+            return placeholderRepository.save(placeholder);//потом можно это объеденить с ListSdt
+        } else{
             Placeholder placeholder = new Placeholder();
             placeholder.setTemplate(template);
             placeholder.setType(requestContent.getEditorType());

@@ -55,4 +55,16 @@ public class DocTable implements Part {
     public void setNumberInTemplate(Long numberInTemplate) {
         this.numberInTemplate = numberInTemplate;
     }
+
+    @Transient
+    @Override
+    public String getType() {
+        return "Table";
+    }
+
+    @Transient
+    @Override
+    public String getPicture() {
+        return "";
+    }
 }
