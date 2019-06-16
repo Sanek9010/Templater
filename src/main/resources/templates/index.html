@@ -6,7 +6,16 @@
     <script th:replace="fragments/header :: headerElement"></script>
 </head>
 <body>
-<div th:replace="fragments/header :: header"></div>
-    <h1>Hello</h1>
+<div th:replace="fragments/header :: headerForUser"></div>
+<div class="container">
+    <div class="card mt-3">
+        <div class="card-header">
+            <h2>Добро пожаловать</h2>
+        </div>
+        <div  class="card-body">
+            Для навигации по сайту используйте кнопки в левом верхнем углу страницы.
+        </div>
+    </div>
+</div>
 </body>
 </html>

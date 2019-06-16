@@ -25,6 +25,7 @@
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <input type="hidden" th:field="${template.id}"   />
                 <input type="hidden" th:field="${template.numberOfParts}"   />
+                <input type="hidden" th:field="${template.user}"   />
                 <div class = "form-row col-12 border border-secondary rounded m-1 p-2">
                     <label for="name" class="ml-2 col-form-label">Название:</label>
                     <div class="ml-2">
@@ -35,6 +36,12 @@
                     <div class="ml-2">
                         <input type="text" class="form-control" th:field="${template.dateOfCreation}"/>
                     </div>
+
+                    <label for="private" class="ml-2 col-form-label">Приватный?</label>
+                    <div class="ml-2">
+                        <input type="checkbox" class="mt-3" th:field="${template.privateTemplate}" />
+                    </div>
+
                     <button type="submit" class="btn btn-primary ml-4">Сохранить</button>
                 </div>
             </form>
@@ -49,7 +56,7 @@
                         <textarea name="content" id="editor" hidden>
                         </textarea>
                         <form action="/createPicture" id="picture" method="post" enctype="multipart/form-data" hidden>
-                            <input type="file"  class="form-control" name="picture" />
+                            <input type="file"  class="form-control" name="picture" accept="image/jpeg,image/png,image/gif" />
                         </form>
                         <button type="button" id="postEditor" class="btn btn-primary" onclick="postPart()">Сохранить</button>
                     </div>
@@ -60,7 +67,7 @@
                         <button type="button" id="createTableButton" class="btn btn-secondary col-auto" onclick="createTable0()">Добавить таблицу</button>
                     </div>
                 </div>
-                <p id="key" hidden></p>
+                <p id="key" hidden>1</p>
                 <p id="currentStyle" hidden></p>
 
                 <div class = "form-group row m-3 col-6">

@@ -1,18 +1,18 @@
 CKEDITOR.dialog.add( 'insertSdtTable', function ( editor ) {
     return {
-        title: 'Table sdt creation',
+        title: 'Создание таблицы для заполнения',
         minWidth: 400,
         minHeight: 200,
 
         contents: [
             {
                 id: 'tab-basic',
-                label: 'Settings',
+                label: 'Настройки',
                 elements: [
                     {
                         type: 'text',
                         id: 'name',
-                        label: 'name',
+                        label: 'Название',
                         'default': '',
                         validate: function() {
                             if ( !this.getValue() ) {
@@ -24,7 +24,7 @@ CKEDITOR.dialog.add( 'insertSdtTable', function ( editor ) {
                     {
                         type: 'text',
                         id: 'numberOfColumns',
-                        label: 'numberOfColumns',
+                        label: 'Количество столбцов',
                         'default': '',
                         validate: function() {
                             if ( !this.getValue() ) {
@@ -36,8 +36,8 @@ CKEDITOR.dialog.add( 'insertSdtTable', function ( editor ) {
                     {
                         type: 'button',
                         id: 'buttonId',
-                        label: 'Create header row',
-                        title: 'Create header row',
+                        label: 'Создать заглавную строку',
+                        title: 'Создать заглавную строку',
                         onClick: function() {
                             var i;
                             var dialog = this.getDialog();

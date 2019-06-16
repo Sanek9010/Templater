@@ -1,6 +1,7 @@
 package com.templater.web;
 
 import com.templater.domain.ParagraphStyle;
+import com.templater.domain.StyleInterface;
 import com.templater.repositories.StyleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,7 +27,8 @@ public class StyleController {
     @RequestMapping(value = "/styles", method = RequestMethod.GET)
     public String getStyles(ModelMap model){
         List<ParagraphStyle> styles = styleRepository.findAll();
-        model.put("styles",styles);
+        List<StyleInterface> stylesInt = new ArrayList<>(styles);
+        model.put("styles",stylesInt);
         return "styles";
     }
 

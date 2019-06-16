@@ -5,7 +5,7 @@ CKEDITOR.plugins.add( 'sdt', {
         editor.ui.addButton( 'sdt', {
             label: 'Insert sdt',
             command: 'insertSdt',
-            toolbar: 'insert'
+            toolbar: 'insert,75'
         });
         CKEDITOR.dialog.add( 'insertSdt', this.path + 'dialogs/abbr.js' );
     }

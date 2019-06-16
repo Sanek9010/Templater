@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 import org.w3c.tidy.Tidy;
 
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -44,10 +46,62 @@ public class TemplateService {
     private ParagraphStyleRepository paragraphStyleRepository;
     private XHTMLImporterImpl xhtmlImporter;
 
+    @PersistenceContext
+    private EntityManager em;
+
 
     public Template save(Template template){
         return templateRepo.save(template);
     }
+
+//    public Template saveAddedTemplate(Template template, User user){
+//        Template saved = new Template();
+//        saved.setUser(user);
+//        saved.setPrivateTemplate(template.getPrivateTemplate());
+//        saved.setDateOfCreation(template.getDateOfCreation());
+//        saved.setName(template.getName());
+//        saved.setNumberOfParts(template.getNumberOfParts());
+//        saved.setParagraphs(new HashSet<>());
+//        saved.setDocTables(new HashSet<>());
+//        saved = save(saved);
+//        for (Placeholder placeholder:template.getPlaceholders()) {
+//            Placeholder newP = new Placeholder();
+//            newP.setTemplate(saved);
+//            newP.setPictureBytes(placeholder.getPictureBytes());
+//            newP.setPictureFile(placeholder.getPictureFile());
+//            newP.setFilled(placeholder.getFilled());
+//            newP.setType(placeholder.getType());
+//            newP.setName(placeholder.getName());
+//            newP.setContentXml(placeholder.getContentXml());
+//            saved.getPlaceholders().add(newP);
+//        }
+//        for (Picture picture:template.getPictures()) {
+//            Picture picture1 = new Picture();
+//            picture1.setTemplate(saved);
+//            picture1.setPictureFile(picture.getPictureFile());
+//            picture1.setContentXml(picture.getContentXml());
+//            picture1.setNumberInTemplate(picture.getNumberInTemplate());
+//            saved.getPictures().add(picture1);
+//        }
+//        for (DocTable table:template.getDocTables()) {
+//            DocTable table1 = new DocTable();
+//            table1.setTemplate(saved);
+//            table1.setContentXml(table.getContentXml());
+//            table1.setNumberInTemplate(table.getNumberInTemplate());
+//            table1.setTableStyle(table.getTableStyle());
+//            saved.getDocTables().add(table1);
+//        }
+//        for (Paragraph paragraph:template.getParagraphs()) {
+//            Paragraph paragraph1 = new Paragraph();
+//            paragraph1.setTemplate(saved);
+//            paragraph1.setNumberInTemplate(paragraph.getNumberInTemplate());
+//            paragraph1.setParagraphStyle(paragraph.getParagraphStyle());
+//            paragraph1.setContentXml(paragraph.getContentXml());
+//            saved.getParagraphs().add(paragraph1);
+//        }
+//        save(saved);
+//        return saved;
+//    }
 
     public Map<Long,Part> getAllParts(Template template){
         List<Paragraph> paragraphs = paragraphRepository.findByTemplate(template);
@@ -102,8 +156,6 @@ public class TemplateService {
         document.select("button").remove();
         htmlWithoutEntities = document.outerHtml();
         htmlWithoutEntities = htmlWithoutEntities.replace("<br>","\n");
-//        Whitelist whitelist = Whitelist.relaxed();
-//        htmlWithoutEntities = Jsoup.clean(htmlWithoutEntities,whitelist);
         return htmlWithoutEntities;
     }
 
@@ -206,11 +258,14 @@ public class TemplateService {
         Map<Long,Part> parts = getAllParts(template);
         MainDocumentPart mainDocumentPart = wordMLPackage.getMainDocumentPart();
         StyleDefinitionsPart stylesPart = mainDocumentPart.getStyleDefinitionsPart();
-
+        List<ParagraphStyle> paragraphStyles = new ArrayList<>();
         parts.forEach((aLong, part) -> {
             if(part instanceof Paragraph){
-                Style style = ((Paragraph) part).getParagraphStyle().createParagraphStyle();
-                stylesPart.getJaxbElement().getStyle().add(style);
+                if(!paragraphStyles.contains(((Paragraph) part).getParagraphStyle())) {
+                    Style style = ((Paragraph) part).getParagraphStyle().createParagraphStyle();
+                    stylesPart.getJaxbElement().getStyle().add(style);
+                    paragraphStyles.add(((Paragraph) part).getParagraphStyle());
+                }
             }
         });
 
@@ -252,11 +307,13 @@ public class TemplateService {
         if(templateOpt.isPresent()){
             template = templateOpt.get();
         }else {
-            template = new Template();//todo заменить на нормальную обработку
+            throw new NullPointerException("Template not found");
         }
-        if(requestContent.getEditorType().equals("Paragraph")||
+        if((requestContent.getNumberOfPart()< template.getNumberOfParts())&&
+                (requestContent.getEditorType().equals("Paragraph")||
                 requestContent.getEditorType().equals("Table")||
-                requestContent.getEditorType().equals("Picture")){
+                requestContent.getEditorType().equals("Picture")||
+                requestContent.getEditorType().equals("PictureSdt"))){
             Map<Long, Part> allParts = getAllParts(template);
             allParts.forEach((aLong, part) -> {
                 if(part.getNumberInTemplate()>=requestContent.getNumberOfPart()){
@@ -276,7 +333,6 @@ public class TemplateService {
                 }
             });
         }
-
         if(requestContent.getEditorType().equals("Paragraph")){
             template.setNumberOfParts(template.getNumberOfParts()+1);
             Paragraph paragraph = new Paragraph();
@@ -284,7 +340,6 @@ public class TemplateService {
             paragraph.setNumberInTemplate( requestContent.getNumberOfPart());
             paragraph.setTemplate(template);
             paragraph.setParagraphStyle(paragraphStyleRepository.findById(Long.parseLong(requestContent.getStyleId())).get());
-            //todo добавить стиль параграфа
             return paragraphRepository.save(paragraph);
         } else if(requestContent.getEditorType().equals("Table")){
             template.setNumberOfParts(template.getNumberOfParts()+1);
@@ -314,14 +369,20 @@ public class TemplateService {
             placeholder.setType(requestContent.getEditorType());
             placeholder.setName(requestContent.getContent());
             placeholder.setFilled(false);
-            return placeholderRepository.save(placeholder);//потом можно это объеденить с ListSdt
+            return placeholderRepository.save(placeholder);
         } else if(requestContent.getEditorType().equals("PictureSdt")){
             Placeholder placeholder = new Placeholder();
             placeholder.setTemplate(template);
             placeholder.setType(requestContent.getEditorType());
             placeholder.setName(requestContent.getContent());
             placeholder.setFilled(false);
-            return placeholderRepository.save(placeholder);//потом можно это объеденить с ListSdt
+            template.setNumberOfParts(template.getNumberOfParts()+1);
+            Picture picture = new Picture();
+            picture.setNumberInTemplate(requestContent.getNumberOfPart());
+            picture.setTemplate(template);
+            picture.setContentXml(requestContent.getContent());
+            pictureRepository.save(picture);
+            return placeholderRepository.save(placeholder);
         } else{
             Placeholder placeholder = new Placeholder();
             placeholder.setTemplate(template);

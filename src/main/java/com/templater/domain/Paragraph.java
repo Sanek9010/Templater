@@ -66,4 +66,12 @@ public class Paragraph implements Part {
     public String getPicture() {
         return "";
     }
+
+    public Paragraph(){}
+
+    public Paragraph(Paragraph paragraph){
+        this.contentXml = paragraph.getContentXml();
+        this.numberInTemplate = paragraph.getNumberInTemplate();
+        this.paragraphStyle = paragraph.getParagraphStyle();
+    }
 }

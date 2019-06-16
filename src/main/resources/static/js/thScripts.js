@@ -6,7 +6,7 @@ $(document).ready(function () {
 
 });
 
-function addItem(currentElement) {
+function addItem(currentElement,inputId,tableFromServer,placeholderId) {
     var lastLi = $(currentElement).parent().parent();
     var newLi = document.createElement('li');
     newLi.setAttribute('class','py-0 border-top border-bottom border-secondary ');
@@ -19,12 +19,14 @@ function addItem(currentElement) {
     newP.setAttribute('class','col m-0');
     newDiv.appendChild(newP);
 
+    //тут потом переделать на простое добавление, это все равно не работает
     var buttons = lastLi.children('div').children();
     buttons.each(function (index) {
         var el= this;
         if($(this).is('button')){
             let attr = this.getAttribute('onclick');
-            if(attr === 'addItem(this)')
+            let signature = 'addItem(this,'+inputId+','+tableFromServer+','+placeholderId+')';
+            if(attr === signature)
                 newDiv.appendChild(this);
             else{
                 let button = $(this).clone().get()[0];
@@ -34,39 +36,23 @@ function addItem(currentElement) {
     });
     newLi.appendChild(newDiv);
     lastLi.after(newLi);
+    save(inputId,tableFromServer,placeholderId);
 }
-function addInnerItem(currentElement) {
+function addInnerItem(currentElement,inputId,tableFromServer,placeholderId) {
     var closestLi = currentElement.closest('li');
     var newOl = document.createElement('ol');
-
-    var newLi = document.createElement('li');
-    newLi.setAttribute('class','py-0 border-top border-bottom border-secondary ');
-    var newDiv = document.createElement('div');
-    newDiv.setAttribute('class','row');
-
-    var newP = document.createElement('p');
-    newP.setAttribute('contenteditable',true);
-    newP.setAttribute('class','col m-0');
-    newDiv.appendChild(newP);
-
-    var buttonLi = document.createElement('button');
-    buttonLi.setAttribute('type','button');
-    buttonLi.setAttribute('class','btn btn-secondary btn-sm col-auto');
-    buttonLi.setAttribute('onclick','addItem(this)');
-    buttonLi.innerText = 'Добавить элемент';
-
-    var buttonOl = document.createElement('button');
-    buttonOl.setAttribute('type','button');
-    buttonOl.setAttribute('class','btn btn-secondary btn-sm col-auto');
-    buttonOl.setAttribute('onclick','addInnerItem(this)');
-    buttonOl.innerText = 'Добавить вложенный список';
-
-
-    newDiv.appendChild(buttonLi);
-    newDiv.appendChild(buttonOl);
-    newLi.appendChild(newDiv);
+    var newLi = $(closestLi).clone().get()[0];
+    var a = newLi.getElementsByTagName('p')[0].innerHTML;
+    newLi.getElementsByTagName('p')[0].innerHTML ="";
     newOl.appendChild(newLi);
     closestLi.appendChild(newOl);
+    save(inputId,tableFromServer,placeholderId);
+}
+
+function deleteItem(currentElement,inputId,tableFromServer,placeholderId) {
+    var closestLi = currentElement.closest('li');
+    closestLi.parentNode.removeChild(closestLi);
+    save(inputId,tableFromServer,placeholderId);
 }
 
 function onLoadTable(){
@@ -74,7 +60,6 @@ function onLoadTable(){
     let j = 0;
     do {
         let i;
-
         try {
             let filled = (document.getElementById('placeholders'+j+'.filled').value === 'true');
             if(!filled){
@@ -100,11 +85,7 @@ function onLoadTable(){
     }while (j<=numberOfPlaceholders);
 }
 
-function addRow(numberOfTable) {
-
-    // let headers = headersFromServer;
-    // let i;
-    // headers = JSON.parse(headers);
+function addRow(numberOfTable,inputId,tableFromServer,placeholderId) {
     var selector = '#'+numberOfTable;
     let table = $(selector);
     let tableBody = table.find('tbody');
@@ -114,15 +95,17 @@ function addRow(numberOfTable) {
        this.innerText='';
     });
     trLast.after(trNew);
-    // let row = table.insertRow(-1);
-    // for (i = 0; i < headers.length; i++) {
-    //     var cell = row.insertCell(i);
-    //     cell.setAttribute('contenteditable','true');
-    //     cell.setAttribute('style','white-space:normal');
-    // }
-
-
+    save(inputId,tableFromServer,placeholderId);
 }
+function deleteRow(numberOfTable,inputId,tableFromServer,placeholderId) {
+    var selector = '#'+numberOfTable;
+    let table = $(selector);
+    let tableBody = table.find('tbody');
+    let trLast = tableBody.find('tr:last');
+    trLast.parentNode.removeChild(trLast);
+    save(inputId,tableFromServer,placeholderId);
+}
+
 function save(inputId,tableFromServer,placeholderId) {
     let table = document.getElementById(tableFromServer);
     let filled = document.getElementById(placeholderId+'.filled');
@@ -130,4 +113,32 @@ function save(inputId,tableFromServer,placeholderId) {
     let inputContent = document.getElementById(inputId);
     inputContent.value = table.outerHTML;
 }
+
+function savePicture(inputId, index, input) {
+    if(input.files && input.files[0]){
+        var reader = new FileReader();
+        var picturePlace = '#Picture'+index;
+        reader.onload = function (e) {
+            $(picturePlace)
+                .attr('src', e.target.result)
+                .width(150)
+                .height(200);
+            $(inputId).val(e.target.result);
+        };
+        reader.readAsDataURL(input.files[0]);
+
+        // var reader2 = new FileReader();
+        // reader2.onload = function (e) {
+        //     var arrayBuffer = this.result,
+        //         array = new Uint8Array(arrayBuffer),
+        //         binaryString = String.fromCharCode.apply(null, array);
+        //     let inputContent = document.getElementById(inputId);
+        //     inputContent.value = binaryString;
+        // };
+        // reader2.readAsArrayBuffer(input.files[0]);
+
+
+    }
+}
+
 /*]]>*/

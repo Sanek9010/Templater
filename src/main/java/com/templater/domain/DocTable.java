@@ -67,4 +67,12 @@ public class DocTable implements Part {
     public String getPicture() {
         return "";
     }
+
+    public DocTable(){}
+
+    public DocTable(DocTable table){
+        this.numberInTemplate = table.getNumberInTemplate();
+        this.contentXml = table.getContentXml();
+        this.tableStyle = table.getTableStyle();
+    }
 }

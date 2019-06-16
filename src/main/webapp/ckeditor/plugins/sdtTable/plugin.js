@@ -5,7 +5,7 @@ CKEDITOR.plugins.add( 'sdtTable', {
         editor.ui.addButton( 'sdtTable', {
             label: 'Insert sdtTable',
             command: 'insertSdtTable',
-            toolbar: 'insert'
+            toolbar: 'insert,60'
         });
         CKEDITOR.dialog.add( 'insertSdtTable', this.path + 'dialogs/abbr.js' );
     }

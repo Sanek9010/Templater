@@ -9,6 +9,7 @@ public class Picture implements Part {
     private Long id;
     private Long numberInTemplate;
     private Template template;
+    @Column(length=100000)
     private byte[] pictureFile;
 
 
@@ -67,5 +68,13 @@ public class Picture implements Part {
     public String getPicture() {
         byte[] encoded = Base64.getEncoder().encode(getPictureFile());
         return new String(encoded);
+    }
+
+    public Picture(){}
+
+    public Picture(Picture picture){
+        this.contentXml = picture.getContentXml();
+        this.numberInTemplate = picture.getNumberInTemplate();
+        this.pictureFile = picture.getPictureFile();
     }
 }

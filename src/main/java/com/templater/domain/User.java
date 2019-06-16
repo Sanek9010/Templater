@@ -25,7 +25,7 @@ public class User {
         this.documents = documents;
     }
 
-    @ManyToMany
+    @OneToMany(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY, mappedBy = "user")
     public Set<Template> getTemplates() {
         return templates;
     }

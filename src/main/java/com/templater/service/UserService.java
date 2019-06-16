@@ -16,7 +16,7 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public User save(User user){
+    public User saveAsUser(User user){
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
         Authority autority = new Authority();
@@ -24,6 +24,5 @@ public class UserService {
         autority.setUser(user);
         user.getAuthorities().add(autority);
         return userRepo.save(user);
-
     }
 }

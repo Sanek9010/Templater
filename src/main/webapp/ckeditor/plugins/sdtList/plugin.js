@@ -5,7 +5,7 @@ CKEDITOR.plugins.add( 'sdtList', {
         editor.ui.addButton( 'sdtList', {
             label: 'Insert sdtList',
             command: 'insertSdtList',
-            toolbar: 'insert'
+            toolbar: 'insert, 70'
         });
         CKEDITOR.dialog.add( 'insertSdtList', this.path + 'dialogs/abbr.js' );
     }

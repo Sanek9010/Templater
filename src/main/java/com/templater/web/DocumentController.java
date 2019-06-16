@@ -6,6 +6,7 @@ import com.templater.domain.Template;
 import com.templater.domain.User;
 import com.templater.repositories.DocumentRepository;
 import com.templater.repositories.TemplateRepository;
+import com.templater.security.Authority;
 import com.templater.service.DocumentService;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.templater.web.TemplateController.getResourceResponseEntity;
+
 @Controller
 public class DocumentController {
 
@@ -45,13 +48,23 @@ public class DocumentController {
 
     @RequestMapping(value = "/documents", method = RequestMethod.GET)
     public String documentsView(@AuthenticationPrincipal User user, ModelMap model){
-            List<Document> documents = documentRepository.findByUser(user);
-            model.put("documents", documents);
-        return "documents";
+        List<Document> documents = documentRepository.findByUser(user);
+        model.put("documents", documents);
+        for (Authority authority:user.getAuthorities()) {
+            if(authority.getAuthority().equals("ROLE_SUPERUSER")){
+                return "documents";
+            }
+        }
+        return "documentsForUsers";
     }
 
     @RequestMapping(value = "/documents", method = RequestMethod.POST)
-    public String createDocument(){
+    public String createDocument(@AuthenticationPrincipal User user){
+//        for (Authority authority:user.getAuthorities()) {
+//            if(authority.getAuthority().equals("ROLE_SUPERUSER")){
+//                return "redirect:/templates";
+//            }
+//        }
         return "redirect:/templates";
     }
 
@@ -64,12 +77,17 @@ public class DocumentController {
 
 
     @RequestMapping(value = "/documents/{documentId}", method = RequestMethod.GET)
-    public String documentView(@PathVariable Long documentId, ModelMap model, HttpServletResponse response) throws IOException {
+    public String documentView(@AuthenticationPrincipal User user, @PathVariable Long documentId, ModelMap model, HttpServletResponse response) throws IOException {
         Optional<Document> documentOptional = documentRepository.findById(documentId);
         if(documentOptional.isPresent()){
             Document document = documentService.addAllPlaceholders(documentOptional.get());
             model.put("document", document);
-            return "document";
+            for (Authority authority:user.getAuthorities()) {
+                if(authority.getAuthority().equals("ROLE_SUPERUSER")){
+                    return "document";
+                }
+            }
+            return "documentForUsers";
         } else {
             response.sendError(HttpStatus.NOT_FOUND.value(), "Document with id "+documentId+" not found");
             return "document";
@@ -78,8 +96,17 @@ public class DocumentController {
 
     @RequestMapping(value = "/documents/{documentId}", method = RequestMethod.POST)
     public String updateDocumentHeader(@PathVariable Long documentId, @ModelAttribute Document document){
+        for (Placeholder p: document.getPlaceholders()) {
+            if(p.getType().equals("PictureSdt")){
+                try {
+                    p.setPictureBytes(p.getPictureFile().getBytes());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
         Document savedTemplate = documentRepository.save(document);
-        //todo реализовать редактирование шаблонов, и документов, В ДОКУМЕНТЫ ДОБАВИТЬ ВОЗМОЖНОСТЬ СКАЧАТЬ DOCX
+
         return "redirect:/documents/"+documentId;
     }
 
@@ -107,17 +134,6 @@ public class DocumentController {
         } catch (Docx4JException e) {
             e.printStackTrace();
         }
-        Path path = Paths.get(file.getAbsolutePath());
-        ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=template.docx");
-        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
-        headers.add("Pragma", "no-cache");
-        headers.add("Expires", "0");
-        return ResponseEntity.ok()
-                .headers(headers)
-                .contentLength(file.length())
-                .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .body(resource);
+        return getResourceResponseEntity(file);
     }
 }

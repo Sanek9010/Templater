@@ -1,10 +1,8 @@
 package com.templater.web;
 
-import com.templater.domain.Document;
-import com.templater.domain.Part;
-import com.templater.domain.Template;
-import com.templater.domain.User;
+import com.templater.domain.*;
 import com.templater.repositories.TemplateRepository;
+import com.templater.security.Authority;
 import com.templater.service.TemplateService;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +20,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -39,16 +40,45 @@ public class TemplateController {
     @Autowired
     private TemplateRepository templateRepo;
 
+    @PersistenceContext
+    private EntityManager em;
+
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String indexView(){
         return "index";
     }
 
     @RequestMapping(value = "/templates", method = RequestMethod.GET)
-    public String templateList(ModelMap model){
-        List<Template> templates = templateRepo.findAll();
+    public String myTemplateList(ModelMap model,@AuthenticationPrincipal User user){
+        List<Template> templates = templateRepo.findByUser(user);
         model.put("templates", templates);
-        return "templates";
+        for (Authority authority:user.getAuthorities()) {
+            if(authority.getAuthority().equals("ROLE_SUPERUSER")){
+                return "templates";
+            }
+        }
+        return "templatesForUsers";
+    }
+
+    @RequestMapping(value = "/allTemplates", method = RequestMethod.GET)
+    public String templateList(ModelMap model){
+        List<Template> templates = templateRepo.findByPrivateTemplate(false);
+
+        model.put("templates", templates);
+        return "allTemplates";
+    }
+
+    @Transactional
+    @RequestMapping(value = "/templates/add/{templateId}", method = RequestMethod.GET)
+    public String addToMyTemlates(@PathVariable Long templateId,@AuthenticationPrincipal User user){
+        Optional<Template> templateOptional = templateRepo.findById(templateId);
+        Template template = templateOptional.get();
+        if(!template.getUser().getUsername().equals(user.getUsername())){
+            Template templateClone = new Template(template);
+            templateClone.setUser(user);
+            em.persist(templateClone);
+        }
+        return "redirect:/allTemplates";
     }
 
     @RequestMapping(value = "/templates", method = RequestMethod.POST)
@@ -72,7 +102,8 @@ public class TemplateController {
     }
 
     @RequestMapping(value = "/templates/{templateId}", method = RequestMethod.POST)
-    public String updateTemplate(@PathVariable Long templateId, @ModelAttribute Template template){
+    public String updateTemplate(@AuthenticationPrincipal User user, @PathVariable Long templateId, @ModelAttribute Template template){
+        template.setUser(user);
         Template savedTemplate = templateService.save(template);
         return "redirect:/templates/"+templateId;
     }
@@ -85,13 +116,13 @@ public class TemplateController {
 
 
     @RequestMapping(value = "/templates/{templateId}/getDocx", method = RequestMethod.GET)
-    public ResponseEntity<Resource> getDocx(@PathVariable Long templateId, @ModelAttribute Template template) throws IOException {
+    public ResponseEntity<Resource> getDocx(@PathVariable Long templateId, HttpServletResponse response) throws IOException {
         Optional<Template> templateOptional = templateRepo.findById(templateId);
-        Template actualTemplate;
+        Template actualTemplate = new Template();
         if(templateOptional.isPresent()){
             actualTemplate=templateOptional.get();
         } else {
-            actualTemplate=template;
+            response.sendError(HttpStatus.NOT_FOUND.value(), "Template with id "+templateId+" not found");
         }
         String baseURL = System.getProperty("user.dir");
         String fileLocation = baseURL + "/OUT_from_XHTML.docx";
@@ -102,6 +133,10 @@ public class TemplateController {
         } catch (Docx4JException e) {
             e.printStackTrace();
         }
+        return getResourceResponseEntity(file);
+    }
+
+    static ResponseEntity<Resource> getResourceResponseEntity(File file) throws IOException {
         Path path = Paths.get(file.getAbsolutePath());
         ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
         HttpHeaders headers = new HttpHeaders();
@@ -115,7 +150,4 @@ public class TemplateController {
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .body(resource);
     }
-
-
-
 }

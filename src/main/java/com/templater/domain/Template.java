@@ -1,7 +1,9 @@
 package com.templater.domain;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 @Entity
 public class Template {
@@ -9,7 +11,8 @@ public class Template {
     private String name;
     private String dateOfCreation;
     private Long numberOfParts;
-    private Set<User> users;
+    private Boolean privateTemplate;
+    private User user;
     private Set<Paragraph> paragraphs;
     private Set<DocTable> docTables;
     private Set<Picture> pictures;
@@ -34,7 +37,7 @@ public class Template {
         this.documents = documents;
     }
 
-    @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER, mappedBy = "template")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "template")
     public Set<Paragraph> getParagraphs() {
         return paragraphs;
     }
@@ -42,7 +45,7 @@ public class Template {
     public void setParagraphs(Set<Paragraph> paragraphs) {
         this.paragraphs = paragraphs;
     }
-    @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER, mappedBy = "template")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "template")
     public Set<DocTable> getDocTables() {
         return docTables;
     }
@@ -50,7 +53,7 @@ public class Template {
     public void setDocTables(Set<DocTable> docTables) {
         this.docTables = docTables;
     }
-    @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER, mappedBy = "template")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "template")
     public Set<Picture> getPictures() {
         return pictures;
     }
@@ -59,13 +62,13 @@ public class Template {
         this.pictures = pictures;
     }
 
-    @ManyToMany(mappedBy = "templates")
-    public Set<User> getUsers() {
-        return users;
+    @ManyToOne
+    public User getUser() {
+        return user;
     }
 
-    public void setUsers(Set<User> users) {
-        this.users = users;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Id
@@ -102,4 +105,56 @@ public class Template {
         this.numberOfParts = numberOfParts;
     }
 
+    public Boolean getPrivateTemplate() {
+        return privateTemplate;
+    }
+
+    public void setPrivateTemplate(Boolean privateTemplate) {
+        this.privateTemplate = privateTemplate;
+    }
+
+    public Template(){}
+
+    public Template(Template template){
+        this.setPrivateTemplate(template.getPrivateTemplate());
+        this.setDateOfCreation(template.getDateOfCreation());
+        this.setName(template.getName());
+        this.setNumberOfParts(template.getNumberOfParts());
+        this.placeholders = new HashSet<>();
+        this.pictures = new HashSet<>();
+        this.paragraphs = new HashSet<>();
+        this.docTables = new HashSet<>();
+        for (Paragraph p:template.getParagraphs()) {
+            addParagraph(new Paragraph(p));
+        }
+        for (Picture p:template.getPictures()) {
+            addPicture(new Picture(p));
+        }
+        for (DocTable p:template.getDocTables()) {
+            addTable(new DocTable(p));
+        }
+        for (Placeholder p:template.getPlaceholders()) {
+            addPlaceholder(new Placeholder(p));
+        }
+    }
+
+    public void addParagraph(Paragraph paragraph){
+        this.paragraphs.add(paragraph);
+        paragraph.setTemplate(this);
+    }
+
+    public void addTable(DocTable table){
+        this.docTables.add(table);
+        table.setTemplate(this);
+    }
+
+    public void addPicture(Picture picture){
+        this.pictures.add(picture);
+        picture.setTemplate(this);
+    }
+
+    public void addPlaceholder(Placeholder placeholder){
+        this.placeholders.add(placeholder);
+        placeholder.setTemplate(this);
+    }
 }

@@ -34,7 +34,7 @@ function createParagraph0() {
             { name: 'others', groups: [ 'others' ] },
             { name: 'about', groups: [ 'about' ] }
         ],
-        extraPlugins:'sdt, sdtList, sdtTable, chooseStyle',
+        extraPlugins:'sdt, sdtList, sdtTable, chooseStyle, sdtPicture',
         removeButtons: 'Source,Save,NewPage,Preview,Print,Templates,Cut,Paste,PasteText,PasteFromWord,Replace,SelectAll,Find,Undo,Redo,Copy,Scayt,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,Strike,CopyFormatting,RemoveFormat,Outdent,Indent,Blockquote,CreateDiv,BidiLtr,BidiRtl,Language,Link,Unlink,Anchor,EasyImageUpload,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,Format,Font,FontSize,TextColor,BGColor,Maximize,ShowBlocks,About',
 
         //removeButtons: 'Source,Save,NewPage,Preview,Print,Templates,Cut,Copy,Paste,PasteText,PasteFromWord,Redo,Undo,Find,Replace,SelectAll,Scayt,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,Strike,CopyFormatting,RemoveFormat,Blockquote,CreateDiv,Indent,Outdent,Language,BidiRtl,BidiLtr,Link,Unlink,Anchor,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,BGColor,TextColor,Maximize,ShowBlocks,About,EasyImageUpload',
@@ -70,14 +70,13 @@ function createTable0() {
             { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi', 'paragraph' ] },
             { name: 'links', groups: [ 'links' ] },
             { name: 'styles', groups: [ 'styles' ] },
-            '/',
             { name: 'insert', groups: [ 'insert' ] },
             { name: 'colors', groups: [ 'colors' ] },
             { name: 'tools', groups: [ 'tools' ] },
             { name: 'others', groups: [ 'others' ] },
             { name: 'about', groups: [ 'about' ] }
         ],
-        removeButtons: 'Source,NewPage,Preview,Print,Templates,Save,Cut,Copy,Paste,PasteText,PasteFromWord,Redo,Undo,Find,Replace,SelectAll,Scayt,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,Strike,RemoveFormat,CopyFormatting,Outdent,Indent,Blockquote,CreateDiv,JustifyLeft,JustifyCenter,JustifyRight,JustifyBlock,Language,BidiRtl,BidiLtr,Link,Unlink,Anchor,Flash,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,BGColor,TextColor,ShowBlocks,Maximize,About,Image,Subscript,Superscript,NumberedList,BulletedList'
+        removeButtons: 'Source,Save,NewPage,Preview,Print,Templates,Cut,Copy,Paste,PasteText,PasteFromWord,Undo,Redo,Find,Replace,SelectAll,Scayt,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,Strike,CopyFormatting,RemoveFormat,BulletedList,NumberedList,Outdent,Indent,CreateDiv,Blockquote,JustifyLeft,JustifyCenter,JustifyRight,JustifyBlock,Language,BidiRtl,BidiLtr,Link,Unlink,Anchor,Flash,EasyImageUpload,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,FontSize,Font,Format,Styles,TextColor,BGColor,ShowBlocks,Maximize,About'
     });
     $('#createButtons').prop('hidden',true);
     $('#paragraphForm').prop('hidden', false);

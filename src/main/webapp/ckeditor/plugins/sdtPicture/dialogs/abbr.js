@@ -1,6 +1,6 @@
-CKEDITOR.dialog.add( 'insertSdt', function ( editor ) {
+CKEDITOR.dialog.add( 'insertSdtPicture', function ( editor ) {
     return {
-        title: 'Simple sdt creation',
+        title: 'Picture sdt creation',
         minWidth: 400,
         minHeight: 200,
         contents: [
@@ -26,9 +26,13 @@ CKEDITOR.dialog.add( 'insertSdt', function ( editor ) {
     };
 });
 function ajaxSubmit(content, editorType) {
+    let numberOfParts = $('#numberOfParts').val();
+    $('#numberOfParts').val(++numberOfParts);
+    var key = parseInt($("#key").text(),10);
     var contentObj={};
     contentObj.editorType = editorType;
     contentObj.content = content;
+    contentObj.numberOfPart = key+1;
     let urlString= window.location.href + "/create";
     var token = $('#_csrf').attr('content');
     var header = $('#_csrf_header').attr('content');

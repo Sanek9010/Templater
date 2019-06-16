@@ -9,7 +9,7 @@ import java.math.BigInteger;
 import java.util.Set;
 
 @Entity
-public class ParagraphStyle {
+public class ParagraphStyle implements StyleInterface {
 
     private Long id;
     private String name;
@@ -144,6 +144,12 @@ public class ParagraphStyle {
 
     public String getName() {
         return name;
+    }
+
+    @Transient
+    @Override
+    public String getType() {
+        return "Параграф";
     }
 
     public void setName(String name) {

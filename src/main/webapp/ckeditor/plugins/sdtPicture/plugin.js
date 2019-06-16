@@ -5,7 +5,7 @@ CKEDITOR.plugins.add( 'sdtPicture', {
         editor.ui.addButton( 'sdtPicture', {
             label: 'Insert sdtPicture',
             command: 'insertSdtPicture',
-            toolbar: 'insert'
+            toolbar: 'insert,65'
         });
         CKEDITOR.dialog.add( 'insertSdtPicture', this.path + 'dialogs/abbr.js' );
     }

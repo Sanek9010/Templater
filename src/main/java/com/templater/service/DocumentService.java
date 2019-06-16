@@ -8,9 +8,7 @@ import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class DocumentService {
@@ -40,8 +38,10 @@ public class DocumentService {
 
     public Document addAllPlaceholders(Document document){
         Set<Placeholder> placeholders = document.getTemplate().getPlaceholders();
+        TreeSet<Placeholder> sortedPlacehoders = new TreeSet<>(Comparator.comparingLong(Placeholder::getId));
+        sortedPlacehoders.addAll(placeholders);
         boolean contain;
-        for (Placeholder placeholder:placeholders) {
+        for (Placeholder placeholder:sortedPlacehoders) {
             contain = false;
             for (Placeholder documentPlaceholder: document.getPlaceholders()) {
                 if(documentPlaceholder.getName().equals(placeholder.getName())){
@@ -60,25 +60,33 @@ public class DocumentService {
             }
 
         }
-        // здесь мб ошибка тк документу добавляю плейсхолдеры в коде а не беру с бд
         return document;
     }
 
     public WordprocessingMLPackage convertToDocx(Document document){
         try{
-//            String templateHtml = templateService.getTemplateXml(document.getTemplate());
-//            for (Placeholder placeholder: document.getPlaceholders()) {
-//                String placeholderString = "{{type:"+ placeholder.getType() + ", name:"+ placeholder.getName()+"}}";
-//                int i = templateHtml.indexOf(placeholderString);
-//                templateHtml = templateHtml.replace(placeholderString, placeholder.getContentXml());
-//            }
-//            templateHtml = templateService.cleanHtml(templateHtml);
             Map<Long, Part> parts = templateService.getAllParts(document.getTemplate());
             for (Part part:parts.values()) {
                 for (Placeholder placeholder: document.getPlaceholders()) {
-                    String placeholderString = "{{type:"+ placeholder.getType() + ", name:"+ placeholder.getName()+"}}";
-                    int i = part.getContentXml().indexOf(placeholderString);
-                    part.setContentXml(templateService.cleanHtml(part.getContentXml().replace(placeholderString, placeholder.getContentXml())));
+                    if(placeholder.getType().equals("PictureSdt")) {
+                        if (part instanceof Picture) {
+                            if ((part).getContentXml().equals(placeholder.getName())) {
+                                ((Picture) part).setPictureFile(placeholder.getPictureBytes());
+                            }
+                        }else {
+                            String placeholderString = "{{type:" + placeholder.getType() + ", name:" + placeholder.getName() + "}}";
+                            part.setContentXml(templateService.cleanHtml(part.getContentXml().replace(placeholderString, "")));
+                        }
+                    } else {
+                        if (!(part instanceof Picture)) {
+                            if(placeholder.getContentXml()!=null) {
+                                String placeholderString = "{{type:" + placeholder.getType() + ", name:" + placeholder.getName() + "}}";
+                                int i = part.getContentXml().indexOf(placeholderString);
+                                if (i != -1)
+                                    part.setContentXml(templateService.cleanHtml(part.getContentXml().replace(placeholderString, placeholder.getContentXml())));
+                            }
+                        }
+                    }
                 }
             }
             return templateService.convertToDocx(parts,document.getTemplate());

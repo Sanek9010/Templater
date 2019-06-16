@@ -11,7 +11,7 @@
 </head>
 <body>
 <!--@thymesVar id="document" type="com.templater.domain.Document"-->
-<div th:replace="fragments/header :: header"></div>
+<div th:replace="fragments/header :: headerForUser"></div>
 <div class="container" th:if="${document != null}">
     <div class="card mt-3">
         <div class="card-header">

@@ -1,6 +1,9 @@
 package com.templater.domain;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.persistence.*;
+import java.util.Base64;
 
 @Entity
 public class Placeholder {
@@ -11,6 +14,8 @@ public class Placeholder {
     private Template template;
     private Document document;
     private Boolean filled;
+    private MultipartFile pictureFile;
+    private byte[] pictureBytes;
 
     @javax.persistence.Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -74,4 +79,32 @@ public class Placeholder {
         this.filled = filled;
     }
 
+    @Transient
+    public MultipartFile getPictureFile() {
+        return pictureFile;
+    }
+
+    public void setPictureFile(MultipartFile pictureFile) {
+        this.pictureFile = pictureFile;
+    }
+
+    @Lob
+    public byte[] getPictureBytes() {
+        return pictureBytes;
+    }
+
+    public void setPictureBytes(byte[] pictureBytes) {
+        this.pictureBytes = pictureBytes;
+    }
+
+    public Placeholder(){}
+
+    public Placeholder(Placeholder placeholder){
+        this.contentXml = placeholder.getContentXml();
+        this.filled = placeholder.getFilled();
+        this.name = placeholder.getName();
+        this.pictureBytes = placeholder.getPictureBytes();
+        this.pictureFile = placeholder.getPictureFile();
+        this.type = placeholder.getType();
+    }
 }
