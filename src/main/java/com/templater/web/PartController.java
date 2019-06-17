@@ -2,8 +2,10 @@ package com.templater.web;
 
 import com.templater.domain.ParagraphStyle;
 import com.templater.domain.Part;
+import com.templater.domain.TableStyle;
 import com.templater.domain.Template;
 import com.templater.repositories.StyleRepository;
+import com.templater.repositories.TableStyleRepository;
 import com.templater.repositories.TemplateRepository;
 import com.templater.service.EditPartPOJO;
 import com.templater.service.RequestContent;
@@ -32,6 +34,9 @@ public class PartController {
     @Autowired
     private StyleRepository styleRepository;
 
+    @Autowired
+    private TableStyleRepository tableStyleRepository;
+
 //    @RequestMapping(value = "paragraph", method = RequestMethod.GET)
 //    public String getParagraph(@PathVariable Long templateId, ModelMap model){
 //        model.put("templateId", templateId);
@@ -51,6 +56,13 @@ public class PartController {
     @RequestMapping(value = "getStyles", method = RequestMethod.GET)
     public String getStyles(@PathVariable Long templateId, ModelMap modelMap){
         List<ParagraphStyle> styles = styleRepository.findAll();
+        modelMap.put("styles", styles);
+        return "fragments/templateFragments :: selectStyle";
+    }
+
+    @RequestMapping(value = "getTableStyles", method = RequestMethod.GET)
+    public String getTableStyles(@PathVariable Long templateId, ModelMap modelMap){
+        List<TableStyle> styles = tableStyleRepository.findAll();
         modelMap.put("styles", styles);
         return "fragments/templateFragments :: selectStyle";
     }

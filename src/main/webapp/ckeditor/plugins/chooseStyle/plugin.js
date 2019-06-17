@@ -3,7 +3,7 @@ CKEDITOR.plugins.add( 'chooseStyle', {
     init: function( editor ) {
         editor.addCommand( 'insertChooseStyle', new CKEDITOR.dialogCommand( 'insertChooseStyle' ));
         editor.ui.addButton( 'chooseStyle', {
-            label: 'Choose style',
+            label: 'Выбрать стиль',
             command: 'insertChooseStyle',
             toolbar: 'insert, 100'
         });

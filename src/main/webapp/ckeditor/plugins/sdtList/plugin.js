@@ -3,7 +3,7 @@ CKEDITOR.plugins.add( 'sdtList', {
     init: function( editor ) {
         editor.addCommand( 'insertSdtList', new CKEDITOR.dialogCommand( 'insertSdtList' ));
         editor.ui.addButton( 'sdtList', {
-            label: 'Insert sdtList',
+            label: 'Место для списка',
             command: 'insertSdtList',
             toolbar: 'insert, 70'
         });

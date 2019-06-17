@@ -34,7 +34,7 @@ function createParagraph0() {
             { name: 'others', groups: [ 'others' ] },
             { name: 'about', groups: [ 'about' ] }
         ],
-        extraPlugins:'sdt, sdtList, sdtTable, chooseStyle, sdtPicture',
+        extraPlugins:'sdt, sdtList, sdtTable, chooseStyle, sdtPicture, sdtRich',
         removeButtons: 'Source,Save,NewPage,Preview,Print,Templates,Cut,Paste,PasteText,PasteFromWord,Replace,SelectAll,Find,Undo,Redo,Copy,Scayt,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,Strike,CopyFormatting,RemoveFormat,Outdent,Indent,Blockquote,CreateDiv,BidiLtr,BidiRtl,Language,Link,Unlink,Anchor,EasyImageUpload,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,Format,Font,FontSize,TextColor,BGColor,Maximize,ShowBlocks,About',
 
         //removeButtons: 'Source,Save,NewPage,Preview,Print,Templates,Cut,Copy,Paste,PasteText,PasteFromWord,Redo,Undo,Find,Replace,SelectAll,Scayt,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,Strike,CopyFormatting,RemoveFormat,Blockquote,CreateDiv,Indent,Outdent,Language,BidiRtl,BidiLtr,Link,Unlink,Anchor,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,BGColor,TextColor,Maximize,ShowBlocks,About,EasyImageUpload',
@@ -76,6 +76,7 @@ function createTable0() {
             { name: 'others', groups: [ 'others' ] },
             { name: 'about', groups: [ 'about' ] }
         ],
+        extraPlugins:'chooseTableStyle',
         removeButtons: 'Source,Save,NewPage,Preview,Print,Templates,Cut,Copy,Paste,PasteText,PasteFromWord,Undo,Redo,Find,Replace,SelectAll,Scayt,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,Strike,CopyFormatting,RemoveFormat,BulletedList,NumberedList,Outdent,Indent,CreateDiv,Blockquote,JustifyLeft,JustifyCenter,JustifyRight,JustifyBlock,Language,BidiRtl,BidiLtr,Link,Unlink,Anchor,Flash,EasyImageUpload,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,FontSize,Font,Format,Styles,TextColor,BGColor,ShowBlocks,Maximize,About'
     });
     $('#createButtons').prop('hidden',true);
@@ -223,7 +224,11 @@ function fireAjaxSubmit(content,key) {
     contentObj.editorType = editorType;
     contentObj.content = content;
 
-    var currentStyle = $("#currentStyle").text();
+    var currentStyle;
+    if(editorType=="Table")
+        currentStyle = $("#currentTableStyle").text();
+    else
+        currentStyle = $("#currentStyle").text();
     contentObj.styleId = currentStyle;
     contentObj.numberOfPart = key+1;
     let urlString;

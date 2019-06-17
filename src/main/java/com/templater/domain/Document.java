@@ -1,10 +1,12 @@
 package com.templater.domain;
 
 
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
@@ -12,10 +14,10 @@ import java.util.Set;
 public class Document {
     private Long id;
     private String name;
-    private String dateOfCreation;
+    private LocalDate dateOfCreation;
     private Template template;
-    private User user;
     private List<Placeholder> placeholders;
+    private User user;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "document")
     @Fetch(FetchMode.SELECT)
@@ -54,11 +56,13 @@ public class Document {
         this.name = name;
     }
 
-    public String getDateOfCreation() {
+    @Column(updatable=false)
+    @CreationTimestamp
+    public LocalDate getDateOfCreation() {
         return dateOfCreation;
     }
 
-    public void setDateOfCreation(String dateOfCreation) {
+    public void setDateOfCreation(LocalDate dateOfCreation) {
         this.dateOfCreation = dateOfCreation;
     }
 

@@ -36,7 +36,7 @@
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                     <button class="btn btn-primary m">Создать новый стиль параграфа</button>
                 </form>
-                <form class="ml-2" action="" method="post">
+                <form class="ml-2" action="/styles/createTableStyle" method="post">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                     <button class="btn btn-primary m">Создать новый стиль таблицы</button>
                 </form>

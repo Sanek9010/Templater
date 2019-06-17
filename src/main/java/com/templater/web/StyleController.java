@@ -2,7 +2,9 @@ package com.templater.web;
 
 import com.templater.domain.ParagraphStyle;
 import com.templater.domain.StyleInterface;
+import com.templater.domain.TableStyle;
 import com.templater.repositories.StyleRepository;
+import com.templater.repositories.TableStyleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -23,11 +25,15 @@ public class StyleController {
 
     @Autowired
     private StyleRepository styleRepository;
+    @Autowired
+    private TableStyleRepository tableStyleRepository;
 
     @RequestMapping(value = "/styles", method = RequestMethod.GET)
     public String getStyles(ModelMap model){
         List<ParagraphStyle> styles = styleRepository.findAll();
+        List<TableStyle> tableStyles = tableStyleRepository.findAll();
         List<StyleInterface> stylesInt = new ArrayList<>(styles);
+        stylesInt.addAll(tableStyles);
         model.put("styles",stylesInt);
         return "styles";
     }
@@ -62,5 +68,32 @@ public class StyleController {
 
         styleRepository.deleteById(styleId);
         return "redirect:/styles";
+    }
+
+    @RequestMapping(value = "/styles/tableStyles/{styleId}", method = RequestMethod.GET)
+    public String tableStyleView(@PathVariable Long styleId, ModelMap model, HttpServletResponse response) throws IOException {
+        Optional<TableStyle> styleOptional = tableStyleRepository.findById(styleId);
+        List<ParagraphStyle> styles = styleRepository.findAll();
+        if(styleOptional.isPresent()){
+            model.put("style", styleOptional.get());
+            model.put("paragraphStyles", styles);
+            return "tableStyle";
+        } else {
+            response.sendError(HttpStatus.NOT_FOUND.value(), "Style with id "+styleId+" not found");
+            return "tableStyle";
+        }
+    }
+
+    @RequestMapping(value = "/styles/tableStyles/{styleId}", method = RequestMethod.POST)
+    public String tableStyleView(@PathVariable Long styleId, @ModelAttribute TableStyle style) {
+        TableStyle savedTemplate = tableStyleRepository.save(style);
+        return "redirect:/styles/";
+    }
+
+    @RequestMapping(value = "/styles/createTableStyle", method = RequestMethod.POST)
+    public String createTableStyle(){
+        TableStyle style = new TableStyle();
+        style = tableStyleRepository.save(style);
+        return "redirect:/styles/tableStyles/"+style.getId();
     }
 }

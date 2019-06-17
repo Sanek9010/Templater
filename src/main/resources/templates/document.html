@@ -7,6 +7,7 @@
     <title>Документ</title>
     <script th:replace="fragments/header :: headerElement"></script>
     <script type="text/javascript" th:src="@{/js/scriptsDocument.js}"></script>
+    <script type="text/javascript" th:src="@{../ckeditor/ckeditor.js}"></script>
     <script th:inline="javascript" th:src="@{/js/thScripts.js}"></script>
 </head>
 <body>
@@ -21,7 +22,7 @@
             <form th:object="${document}" action="" method="post" id="documentForm" enctype="multipart/form-data">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <input type="hidden" th:field="${document.id}"   />
-                <input type="hidden" th:field="${document.user}"   />
+                <input type="hidden" th:field="${document.user}" />
                 <input type="hidden" th:field="${document.template}"   />
                 <div class = "form-row col-12 border border-secondary rounded m-2 p-2">
                     <div class="input-group mb-3">
@@ -40,7 +41,7 @@
                         <div class="input-group-prepend">
                             <label for="dateOfCreation" class="input-group-text">Дата создания:</label>
                         </div>
-                        <input type="text" class="form-control" th:field="${document.dateOfCreation}"/>
+                        <input type="text" class="form-control" th:field="${document.dateOfCreation}" disabled/>
                     </div>
                 </div>
 
@@ -57,29 +58,48 @@
                         <span th:if="${placeholder.type}==ListSdt" class="input-group-text" > Список</span>
                         <span th:if="${placeholder.type}==PictureSdt" class="input-group-text" > Изображение</span>
                         <span th:if="${placeholder.type}==TableSdt" class="input-group-text" > Таблица</span>
+                        <span th:if="${placeholder.type}==RichSdt" class="input-group-text" > Раздел</span>
                         <label for="dateOfCreation" class="input-group-text" th:text="${placeholder.name}"></label>
+                    </div>
+
+                    <div class="col-12 mt-2" th:if="${placeholder.type=='RichSdt'}"  th:id="${placeholder.name}">
+                        <input type="hidden" th:field="*{placeholders[__${i.index}__].contentXml}" />
+                        <div th:if="${placeholder.filled}" class="row">
+                            <div th:data="saved" class="col-11" th:id="${i.index}+textarea"  th:utext="${placeholder.contentXml}">
+                            </div>
+                            <div class="col-1 ml-2 row">
+                                <button type="button" th:id="${i.index}+editButton" style="height: 30px; width:30px; padding:0" class="btn btn btn-light btn-sm mt-2 mr-2 border border-secondary" th:onclick="'editPart('+${i.index}+')'"><img th:src="@{/img/baseline_edit_black_18dp.png}" alt="Изменить" /></button>
+                                <button type="button" hidden class="myControls" th:attr="onclick=|saveEditor('placeholders'+${i.index}+'.contentXml',${i.index}+'textarea','placeholders'+${i.index})|"></button>
+                            </div>
+                        </div>
+                        <div th:if="${placeholder.filled == false}" id="paragraphForm" class="card" hidden>
+                            <textarea class="myTextarea" name="content" th:id="'Rich'+${i.index}" hidden>
+                            </textarea>
+                            <button type="button" hidden class="myControls" th:attr="onclick=|saveEditor('placeholders'+${i.index}+'.contentXml','Rich'+${i.index},'placeholders'+${i.index})|"></button>
+                        </div>
                     </div>
 
                     <div class="col-12 mt-2" th:if="${placeholder.type=='ListSdt'}"  th:id="${placeholder.name}">
                         <input type="hidden" th:field="*{placeholders[__${i.index}__].contentXml}" />
                         <div th:data="saved" th:if="${placeholder.filled}" th:utext="${placeholder.contentXml}">
                         </div>
-                        <div th:if="${placeholder.filled == false}">
+                        <div th:if="${placeholder.filled == false}" >
                             <ol th:data="0"  th:id="'List'+${i.index}+'lvl0'">
                                 <li class="py-0 border-top border-bottom border-secondary " >
                                     <div class="row">
                                         <p contenteditable class="col m-0" >
 
                                         </p>
-                                        <button type="button" class="btn btn-secondary btn-sm col-auto"
+                                        <button type="button" hidden class="myControls" th:attr="onclick=|save('placeholders'+${i.index}+'.contentXml','List'+${i.index}+'lvl0','placeholders'+${i.index})|"></button>
+                                        <button type="button" class="btn btn-secondary btn-sm col-auto m-1"
                                                 th:attr="onclick=|addItem(this,'placeholders'+${i.index}+'.contentXml','List'+${i.index}+'lvl0','placeholders'+${i.index})|">
                                             Добавить элемент
                                         </button>
-                                        <button type="button" class="btn btn-secondary btn-sm col-auto"
+                                        <button type="button" class="btn btn-secondary btn-sm col-auto m-1"
                                                 th:attr="onclick=|addInnerItem(this,'placeholders'+${i.index}+'.contentXml','List'+${i.index}+'lvl0','placeholders'+${i.index})|">
                                             Добавить вложенный список
                                         </button>
-                                        <button type="button" class="btn btn-secondary btn-sm col-auto"
+                                        <button type="button" class="btn btn-secondary btn-sm col-auto m-1"
                                                 th:attr="onclick=|deleteItem(this,'placeholders'+${i.index}+'.contentXml','List'+${i.index}+'lvl0','placeholders'+${i.index})|">
                                             Удалить
                                         </button>
@@ -101,6 +121,7 @@
 
                             </table>
                         </div>
+                        <button type="button" hidden class="myControls" th:attr="onclick=|save('placeholders'+${i.index}+'.contentXml','Table'+${i.index},'placeholders'+${i.index})|"></button>
                         <button type="button" class="btn btn-primary mt-1"
                                 th:attr="onclick=|addRow('Table'+'${i.index}','placeholders'+${i.index}+'.contentXml','Table'+${i.index},'placeholders'+${i.index})|">
                             Добавить строку

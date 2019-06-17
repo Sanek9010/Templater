@@ -1,6 +1,10 @@
 package com.templater.domain;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import javax.persistence.*;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -9,7 +13,7 @@ import java.util.TreeSet;
 public class Template {
     private Long id;
     private String name;
-    private String dateOfCreation;
+    private LocalDate dateOfCreation;
     private Long numberOfParts;
     private Boolean privateTemplate;
     private User user;
@@ -37,29 +41,35 @@ public class Template {
         this.documents = documents;
     }
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "template")
+    @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER, mappedBy = "template")
     public Set<Paragraph> getParagraphs() {
         return paragraphs;
     }
 
     public void setParagraphs(Set<Paragraph> paragraphs) {
-        this.paragraphs = paragraphs;
+
+            this.paragraphs=paragraphs;
+
     }
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "template")
+    @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER, mappedBy = "template")
     public Set<DocTable> getDocTables() {
         return docTables;
     }
 
     public void setDocTables(Set<DocTable> docTables) {
-        this.docTables = docTables;
+
+            this.docTables=docTables;
+
     }
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "template")
+    @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER, mappedBy = "template")
     public Set<Picture> getPictures() {
         return pictures;
     }
 
     public void setPictures(Set<Picture> pictures) {
-        this.pictures = pictures;
+
+            this.pictures=pictures;
+
     }
 
     @ManyToOne
@@ -89,11 +99,13 @@ public class Template {
         this.name = name;
     }
 
-    public String getDateOfCreation() {
+    @Column(updatable=false)
+    @CreationTimestamp
+    public LocalDate getDateOfCreation() {
         return dateOfCreation;
     }
 
-    public void setDateOfCreation(String dateOfCreation) {
+    public void setDateOfCreation(LocalDate dateOfCreation) {
         this.dateOfCreation = dateOfCreation;
     }
 
@@ -117,7 +129,6 @@ public class Template {
 
     public Template(Template template){
         this.setPrivateTemplate(template.getPrivateTemplate());
-        this.setDateOfCreation(template.getDateOfCreation());
         this.setName(template.getName());
         this.setNumberOfParts(template.getNumberOfParts());
         this.placeholders = new HashSet<>();

@@ -1,6 +1,11 @@
 package com.templater.domain;
 
+import org.docx4j.jaxb.Context;
+import org.docx4j.wml.*;
+
 import javax.persistence.*;
+import javax.persistence.Id;
+import java.math.BigInteger;
 import java.util.Set;
 
 @Entity
@@ -8,7 +13,10 @@ public class TableStyle implements StyleInterface {
 
     private Long id;
     private String name;
+    private int sz;
+    private String val;
     private Set<DocTable> docTables;
+    private ParagraphStyle paragraphStyle;
 
     @OneToMany(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY, mappedBy = "tableStyle")
     public Set<DocTable> getDocTables() {
@@ -42,5 +50,66 @@ public class TableStyle implements StyleInterface {
     @Override
     public String getType() {
         return "Таблица";
+    }
+
+    @ManyToOne
+    public ParagraphStyle getParagraphStyle() {
+        return paragraphStyle;
+    }
+
+    public void setParagraphStyle(ParagraphStyle paragraphStyle) {
+        this.paragraphStyle = paragraphStyle;
+    }
+
+    public int getSz() {
+        return sz;
+    }
+
+    public void setSz(int sz) {
+        this.sz = sz;
+    }
+
+    public String getVal() {
+        return val;
+    }
+
+    public void setVal(String val) {
+        this.val = val;
+    }
+
+    @Transient
+    public Style createTableStyle(){
+        ObjectFactory factory = Context.getWmlObjectFactory();
+        Style style = factory.createStyle();
+        style.setType("table");
+        style.setStyleId(name);
+        Style.Name styleName = factory.createStyleName();
+        styleName.setVal(name);
+        style.setName(styleName);
+        BooleanDefaultTrue booleanDefaultTrue = new BooleanDefaultTrue();
+        style.setQFormat(booleanDefaultTrue);
+
+        PPr pPr = paragraphStyle.getPPr();
+
+        TblPr tblPr = factory.createTblPr();
+        TblBorders tblBorders = factory.createTblBorders();
+        CTBorder ctBorder = factory.createCTBorder();
+        if(val.equals("Single"))
+            ctBorder.setVal(STBorder.SINGLE);
+        else
+            ctBorder.setVal(STBorder.DOUBLE);
+        ctBorder.setSz(BigInteger.valueOf(sz));
+        tblBorders.setInsideH(ctBorder);
+        tblBorders.setInsideV(ctBorder);
+        tblBorders.setLeft(ctBorder);
+        tblBorders.setRight(ctBorder);
+        tblBorders.setBottom(ctBorder);
+        tblBorders.setTop(ctBorder);
+        tblPr.setTblBorders(tblBorders);
+
+        style.setPPr(pPr);
+        style.setTblPr(tblPr);
+
+        return style;
     }
 }

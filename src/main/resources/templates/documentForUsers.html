@@ -21,7 +21,7 @@
             <form th:object="${document}" action="" method="post" id="documentForm" enctype="multipart/form-data">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <input type="hidden" th:field="${document.id}"   />
-                <input type="hidden" th:field="${document.user}"   />
+                <input type="hidden" th:field="${document.user}" />
                 <input type="hidden" th:field="${document.template}"   />
                 <div class = "form-row col-12 border border-secondary rounded m-2 p-2">
                     <div class="input-group mb-3">

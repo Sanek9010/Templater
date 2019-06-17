@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta id="_csrf" name="_csrf" th:content="${_csrf.token}"/>
+    <meta id="_csrf_header" name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>Стиль</title>
+    <script th:replace="fragments/header :: headerElement"></script>
+</head>
+<body >
+<!--@thymesVar id="style" type="com.templater.domain.TableStyle"-->
+<!--@thymesVar id="paragraphStyles" type="List<com.templater.domain.ParagraphStyle>"-->
+
+<div th:replace="fragments/header :: header"></div>
+<div class="container" th:if="${style != null}">
+    <div class="card mt-3">
+        <div class="card-header">
+            <h2>Создание стиля таблицы</h2>
+        </div>
+        <div class="card-body">
+            <form action="" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <input type="hidden" th:field="${style.id}"   />
+                <div class = "form-row col-12 border border-secondary rounded m-2 p-2">
+                    <label for="name" class="mr-2 col-form-label">Название:</label>
+                    <input type="text" class="form-control col" th:field="${style.name}" />
+                </div>
+
+                <div class = "form-row col-12 border border-secondary rounded m-2 p-2">
+                    <label for="font" class="mr-2 col-form-label">Стиль параграфа:</label>
+                    <select class="custom-select col" th:field="${style.paragraphStyle}">
+                        <option th:each="i:${paragraphStyles}" th:value="${i.id}" th:text="${i.name}"></option>
+                    </select>
+                    <!--                    <input type="text" class="form-control col" th:field="${style.font}" />-->
+                </div>
+
+                <div class = "form-row col-12 border border-secondary rounded m-2 p-2">
+                    <label for="font" class="mr-2 col-form-label">Вид границы:</label>
+                    <select class="custom-select col" th:field="${style.val}">
+                        <option value="single">Одиночная линия</option>
+                        <option value="double">Двойная линия</option>
+                    </select>
+                    <!--                    <input type="text" class="form-control col" th:field="${style.font}" />-->
+                </div>
+                <div class = "form-row col-12 border border-secondary rounded m-2 p-2">
+                    <label for="textSize" class="mr-2 col-form-label">Толщина:</label>
+                    <input type="number" step="1" min="8" max="30" class="form-control col" th:field="${style.sz}" />
+                </div>
+                <div class="row">
+                    <a class="btn btn-secondary ml-2" href="/styles">Назад</a>
+                    <button type="submit" class="btn btn-primary ml-2">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

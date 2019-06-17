@@ -82,8 +82,9 @@ public class TemplateController {
     }
 
     @RequestMapping(value = "/templates", method = RequestMethod.POST)
-    public String createTemplate(){
+    public String createTemplate(@AuthenticationPrincipal User user){
         Template template = new Template();
+        template.setUser(user);
         template.setNumberOfParts(0L);
         template =templateService.save(template);
         return "redirect:/templates/"+template.getId();

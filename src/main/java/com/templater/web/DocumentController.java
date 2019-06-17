@@ -70,7 +70,7 @@ public class DocumentController {
 
     @RequestMapping(value = "/documents/create/{templateId}", method = RequestMethod.POST)
     public String createDocument(@AuthenticationPrincipal User user, @PathVariable Long templateId){
-        Document document = documentService.createDocument(user,templateId);
+        Document document = documentService.createDocument(templateId,user);
 
         return "redirect:/documents/"+document.getId();
     }

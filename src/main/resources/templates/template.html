@@ -34,7 +34,7 @@
                     </div>
                     <label for="dateOfCreation" class="ml-2 col-form-label">Дата создания:</label>
                     <div class="ml-2">
-                        <input type="text" class="form-control" th:field="${template.dateOfCreation}"/>
+                        <input type="text" class="form-control" th:field="${template.dateOfCreation}" disabled/>
                     </div>
 
                     <label for="private" class="ml-2 col-form-label">Приватный?</label>
@@ -69,6 +69,7 @@
                 </div>
                 <p id="key" hidden>1</p>
                 <p id="currentStyle" hidden></p>
+                <p id="currentTableStyle" hidden></p>
 
                 <div class = "form-group row m-3 col-6">
                     <a href="/templates" class="btn btn-secondary">Назад</a>

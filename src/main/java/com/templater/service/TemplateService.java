@@ -44,6 +44,10 @@ public class TemplateService {
     private PlaceholderRepository placeholderRepository;
     @Autowired
     private ParagraphStyleRepository paragraphStyleRepository;
+    @Autowired
+    private TableStyleRepository tableStyleRepository;
+
+
     private XHTMLImporterImpl xhtmlImporter;
 
     @PersistenceContext
@@ -187,22 +191,22 @@ public class TemplateService {
         List<Object> result= new ArrayList<>();
         List<Object> old = new ArrayList<>();
         ObjectFactory factory = Context.getWmlObjectFactory();
-        for (Map.Entry<Long,Part> part: parts.entrySet()) {
-            if(part.getValue() instanceof Picture){
+        for (Map.Entry<Long,Part> entry: parts.entrySet()) {
+            if(entry.getValue() instanceof Picture){
                 String filenameHint = null;
-                String altText = (part.getValue()).getContentXml();
+                String altText = (entry.getValue()).getContentXml();
                 int id1 = 0;
                 int id2 = 1;
                 // Image 1: no width specified
                 try {
-                    result.add(newImage( wordMLPackage, ((Picture)(part.getValue())).getPictureFile(),
+                    result.add(newImage( wordMLPackage, ((Picture)(entry.getValue())).getPictureFile(),
                             filenameHint, altText,
                             id1, id2 ));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             } else {
-                String escapedPart = "<div>"+getEscapedHtml(part.getValue().getContentXml())+"</div>";
+                String escapedPart = "<div>"+getEscapedHtml(entry.getValue().getContentXml())+"</div>";
                 List<Object> objects1 =  XHTMLImporter.convert(escapedPart, baseURL);
                 List<Object> objects = new ArrayList<>();
                 for (int i = (objects1.size() - old.size()); i > 0; i--) {
@@ -217,9 +221,9 @@ public class TemplateService {
                         }
                         pPr.setSpacing(null);
                         pPr.setInd(null);
-                        if(part.getValue() instanceof Paragraph) {
+                        if(entry.getValue() instanceof Paragraph) {
                             PPrBase.PStyle pStyle = factory.createPPrBasePStyle();
-                            pStyle.setVal(((Paragraph) part.getValue()).getParagraphStyle().getName());
+                            pStyle.setVal(((Paragraph) entry.getValue()).getParagraphStyle().getName());
                             pPr.setPStyle(pStyle);
                         }
                         pPr.setRPr(factory.createParaRPr());
@@ -243,6 +247,55 @@ public class TemplateService {
                         }
                         result.add(p);
                     }else if(o instanceof Tbl){
+                        Tbl tbl = (Tbl)o;
+                        TblPr tblPr = tbl.getTblPr();
+                        tblPr.setTblBorders(null);
+                        if(entry.getValue() instanceof DocTable) {
+                            CTTblPrBase.TblStyle tblStyle = factory.createCTTblPrBaseTblStyle();
+                            tblStyle.setVal(((DocTable)entry.getValue()).getTableStyle().getName());
+                            tblPr.setTblStyle(tblStyle);
+                        }
+                        tbl.setTblPr(tblPr);
+
+                        for (Object tblElement:tbl.getContent()) {
+                            if(tblElement instanceof Tr){
+                                Tr tr = (Tr)tblElement;
+                                for (Object trElement: tr.getContent()) {
+                                    if(trElement instanceof Tc){
+                                        Tc tc = (Tc)trElement;
+                                        for (Object tcElement: tc.getContent()){
+                                            if(tcElement instanceof P){
+                                                P p = (P)tcElement;
+                                                PPr pPr = p.getPPr();
+                                                if(pPr.getJc().getVal()==JcEnumeration.LEFT){
+                                                    pPr.setJc(null);
+                                                }
+                                                pPr.setSpacing(null);
+                                                pPr.setInd(null);
+                                                pPr.setRPr(factory.createParaRPr());
+                                                p.setPPr(pPr);
+                                                for (Object pElement:p.getContent()) {
+                                                    if(pElement instanceof R){
+                                                        R r = (R)pElement;
+                                                        try {
+                                                            RPr rPr = r.getRPr();
+                                                            RPr newRPr = factory.createRPr();
+                                                            newRPr.setI(rPr.getI());
+                                                            newRPr.setB(rPr.getB());
+                                                            newRPr.setU(rPr.getU());
+                                                            newRPr.setPosition(rPr.getPosition());
+                                                            r.setRPr(newRPr);
+                                                        }catch (Exception e){}
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                //убираем fonts которые пришли с html
+                            }
+                        }
+
                         result.add(o);
                     }
                 }
@@ -309,11 +362,11 @@ public class TemplateService {
         }else {
             throw new NullPointerException("Template not found");
         }
-        if((requestContent.getNumberOfPart()< template.getNumberOfParts())&&
-                (requestContent.getEditorType().equals("Paragraph")||
+        if((requestContent.getEditorType().equals("Paragraph")||
                 requestContent.getEditorType().equals("Table")||
                 requestContent.getEditorType().equals("Picture")||
-                requestContent.getEditorType().equals("PictureSdt"))){
+                requestContent.getEditorType().equals("PictureSdt"))&&
+                (requestContent.getNumberOfPart()< template.getNumberOfParts())){
             Map<Long, Part> allParts = getAllParts(template);
             allParts.forEach((aLong, part) -> {
                 if(part.getNumberInTemplate()>=requestContent.getNumberOfPart()){
@@ -347,7 +400,7 @@ public class TemplateService {
             table.setContentXml(requestContent.getContent());
             table.setNumberInTemplate(requestContent.getNumberOfPart());
             table.setTemplate(template);
-            //todo добавить стиль таблицы
+            table.setTableStyle(tableStyleRepository.findById(Long.parseLong(requestContent.getStyleId())).get());
             return tableRepository.save(table);
         } else if(requestContent.getEditorType().equals("Picture")){
             template.setNumberOfParts(template.getNumberOfParts()+1);
@@ -364,6 +417,13 @@ public class TemplateService {
             placeholder.setFilled(false);
             return placeholderRepository.save(placeholder);
         } else if(requestContent.getEditorType().equals("SimpleSdt")){
+            Placeholder placeholder = new Placeholder();
+            placeholder.setTemplate(template);
+            placeholder.setType(requestContent.getEditorType());
+            placeholder.setName(requestContent.getContent());
+            placeholder.setFilled(false);
+            return placeholderRepository.save(placeholder);
+        } else if(requestContent.getEditorType().equals("RichSdt")){
             Placeholder placeholder = new Placeholder();
             placeholder.setTemplate(template);
             placeholder.setType(requestContent.getEditorType());

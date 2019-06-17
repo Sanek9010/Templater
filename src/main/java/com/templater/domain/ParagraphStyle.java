@@ -26,6 +26,7 @@ public class ParagraphStyle implements StyleInterface {
     private Double leftIndent;
     private Double rightIndent;
     private Set<Paragraph> paragraphs;
+    private Set<TableStyle> tableStyles;
 
     @OneToMany(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY, mappedBy = "paragraphStyle")
     public Set<Paragraph> getParagraphs() {
@@ -34,6 +35,15 @@ public class ParagraphStyle implements StyleInterface {
 
     public void setParagraphs(Set<Paragraph> paragraphs) {
         this.paragraphs = paragraphs;
+    }
+
+    @OneToMany(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY, mappedBy = "paragraphStyle")
+    public Set<TableStyle> getTableStyles() {
+        return tableStyles;
+    }
+
+    public void setTableStyles(Set<TableStyle> tableStyles) {
+        this.tableStyles = tableStyles;
     }
 
     @Id
@@ -156,18 +166,9 @@ public class ParagraphStyle implements StyleInterface {
         this.name = name;
     }
 
-    public Style createParagraphStyle(){
+    @Transient
+    public PPr getPPr(){
         ObjectFactory factory = Context.getWmlObjectFactory();
-        Style style = factory.createStyle();
-        style.setType("paragraph");
-        style.setStyleId(name);
-        Style.Name styleName = factory.createStyleName();
-        styleName.setVal(name);
-        style.setName(styleName);
-        Style.BasedOn basedOn = factory.createStyleBasedOn();
-        basedOn.setVal("Normal");
-        style.setBasedOn(basedOn);
-
         PPr pPr = factory.createPPr();
         Jc jcObj = factory.createJc();
         switch (jc){
@@ -223,8 +224,25 @@ public class ParagraphStyle implements StyleInterface {
         rPr.setSz(hpsMeasure);
 
         pPr.setRPr(rPr);
+        return pPr;
+    }
+
+    public Style createParagraphStyle(){
+        ObjectFactory factory = Context.getWmlObjectFactory();
+        Style style = factory.createStyle();
+        style.setType("paragraph");
+        style.setStyleId(name);
+        Style.Name styleName = factory.createStyleName();
+        styleName.setVal(name);
+        style.setName(styleName);
+        Style.BasedOn basedOn = factory.createStyleBasedOn();
+        basedOn.setVal("Normal");
+        style.setBasedOn(basedOn);
+
+        PPr pPr = getPPr();
 
         style.setPPr(pPr);
+        BooleanDefaultTrue booleanDefaultTrue = new BooleanDefaultTrue();
         style.setQFormat(booleanDefaultTrue);
 
         return style;

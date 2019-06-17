@@ -23,7 +23,7 @@ public class DocumentService {
     private TemplateService templateService;
 
 
-    public Document createDocument(User user, Long templateId){
+    public Document createDocument(Long templateId,User user){
         Optional<Template> templateOptional = templateRepository.findById(templateId);
         Template template;
         if(templateOptional.isPresent()){

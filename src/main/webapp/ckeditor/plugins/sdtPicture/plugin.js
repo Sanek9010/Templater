@@ -3,7 +3,7 @@ CKEDITOR.plugins.add( 'sdtPicture', {
     init: function( editor ) {
         editor.addCommand( 'insertSdtPicture', new CKEDITOR.dialogCommand( 'insertSdtPicture' ));
         editor.ui.addButton( 'sdtPicture', {
-            label: 'Insert sdtPicture',
+            label: 'Место для изображения',
             command: 'insertSdtPicture',
             toolbar: 'insert,65'
         });
