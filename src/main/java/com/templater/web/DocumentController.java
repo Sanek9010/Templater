@@ -1,9 +1,6 @@
 package com.templater.web;
 
-import com.templater.domain.Document;
-import com.templater.domain.Placeholder;
-import com.templater.domain.Template;
-import com.templater.domain.User;
+import com.templater.domain.*;
 import com.templater.repositories.DocumentRepository;
 import com.templater.repositories.TemplateRepository;
 import com.templater.security.Authority;
@@ -31,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -81,7 +79,9 @@ public class DocumentController {
         Optional<Document> documentOptional = documentRepository.findById(documentId);
         if(documentOptional.isPresent()){
             Document document = documentService.addAllPlaceholders(documentOptional.get());
+            Map<String,List<Part>> groupedParts = documentService.getGroupedParts(document.getTemplate());
             model.put("document", document);
+            model.put("groupedParts",groupedParts);
             for (Authority authority:user.getAuthorities()) {
                 if(authority.getAuthority().equals("ROLE_SUPERUSER")){
                     return "document";

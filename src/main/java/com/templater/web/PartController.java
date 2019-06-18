@@ -1,9 +1,7 @@
 package com.templater.web;
 
-import com.templater.domain.ParagraphStyle;
-import com.templater.domain.Part;
-import com.templater.domain.TableStyle;
-import com.templater.domain.Template;
+import com.templater.domain.*;
+import com.templater.repositories.PartGroupRepository;
 import com.templater.repositories.StyleRepository;
 import com.templater.repositories.TableStyleRepository;
 import com.templater.repositories.TemplateRepository;
@@ -37,6 +35,9 @@ public class PartController {
     @Autowired
     private TableStyleRepository tableStyleRepository;
 
+    @Autowired
+    private PartGroupRepository partGroupRepository;
+
 //    @RequestMapping(value = "paragraph", method = RequestMethod.GET)
 //    public String getParagraph(@PathVariable Long templateId, ModelMap model){
 //        model.put("templateId", templateId);
@@ -69,9 +70,26 @@ public class PartController {
 
     @RequestMapping(value = "create", method = RequestMethod.POST)
     public ResponseEntity<?> createPart(@PathVariable Long templateId, @RequestBody RequestContent requestContent, HttpServletResponse response) throws IOException {
-        //todo использовать выбраный стиль таблиц
         templateService.savePart(requestContent,templateId);
         return ResponseEntity.ok("done");
+    }
+
+    @RequestMapping(value = "createPartGroup", method = RequestMethod.POST)
+    public ResponseEntity<?> createPartGroup(@PathVariable Long templateId, @RequestBody String requestContent, HttpServletResponse response) throws IOException {
+        Optional<Template> templateOpt = templateRepo.findById(templateId);
+        PartGroup partGroup = new PartGroup();
+        partGroup.setTemplate(templateOpt.get());
+        partGroup.setName(requestContent);
+        partGroupRepository.save(partGroup);
+        return ResponseEntity.ok("done");
+    }
+
+    @RequestMapping(value = "getPartGroups", method = RequestMethod.GET)
+    public String getPartGroups(@PathVariable Long templateId, ModelMap modelMap){
+        Optional<Template> templateOpt = templateRepo.findById(templateId);
+        List<PartGroup> partGroups = partGroupRepository.findByTemplate(templateOpt.get());
+        modelMap.put("partGroups", partGroups);
+        return "fragments/templateFragments :: selectPartGroup";
     }
 
     @RequestMapping(value = "createPicture/{key}", method = RequestMethod.POST)

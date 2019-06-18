@@ -50,6 +50,14 @@
     </select>
 </div>
 
+<div th:fragment="selectPartGroup" >
+    <select id="selectPartGroup">
+        <option th:each="partGroup:${partGroups}"
+                th:value="${partGroup.id}"
+                th:text="${partGroup.name}"></option>
+    </select>
+</div>
+
 
 
 </body>

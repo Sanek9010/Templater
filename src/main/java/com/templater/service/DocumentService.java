@@ -1,9 +1,7 @@
 package com.templater.service;
 
 import com.templater.domain.*;
-import com.templater.repositories.DocumentRepository;
-import com.templater.repositories.PlaceholderRepository;
-import com.templater.repositories.TemplateRepository;
+import com.templater.repositories.*;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +19,12 @@ public class DocumentService {
     private PlaceholderRepository placeholderRepository;
     @Autowired
     private TemplateService templateService;
+    @Autowired
+    private ParagraphRepository paragraphRepository;
+    @Autowired
+    private PictureRepository pictureRepository;
+    @Autowired
+    private TableRepository tableRepository;
 
 
     public Document createDocument(Long templateId,User user){
@@ -94,5 +98,18 @@ public class DocumentService {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public Map<String,List<Part>> getGroupedParts(Template template){
+        Set<PartGroup> partGroups = template.getPartGroups();
+        Map<String,List<Part>> contentList = new TreeMap<>();
+        for (PartGroup partGroup:partGroups) {
+            List<Part> parts = new ArrayList<>();
+            parts.addAll(partGroup.getParagraphs());
+            parts.addAll(partGroup.getDocTables());
+            parts.addAll(partGroup.getPictures());
+            contentList.put(partGroup.getName(),parts);
+        }
+        return contentList;
     }
 }

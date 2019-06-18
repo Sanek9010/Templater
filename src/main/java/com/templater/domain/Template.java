@@ -22,6 +22,7 @@ public class Template {
     private Set<Picture> pictures;
     private Set<Document> documents;
     private Set<Placeholder> placeholders;
+    private Set<PartGroup> partGroups;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "template")
     public Set<Placeholder> getPlaceholders() {
@@ -39,6 +40,15 @@ public class Template {
 
     public void setDocuments(Set<Document> documents) {
         this.documents = documents;
+    }
+
+    @OneToMany(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER, mappedBy = "template")
+    public Set<PartGroup> getPartGroups() {
+        return partGroups;
+    }
+
+    public void setPartGroups(Set<PartGroup> partGroups) {
+        this.partGroups = partGroups;
     }
 
     @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER, mappedBy = "template")

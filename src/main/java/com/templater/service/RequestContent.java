@@ -4,6 +4,7 @@ public class RequestContent{
     private String editorType;
     private String content;
     private String styleId;
+    private String partGroup;
     private Long numberOfPart;
     private byte[] picture;
 
@@ -45,5 +46,13 @@ public class RequestContent{
 
     public void setPicture(byte[] picture) {
         this.picture = picture;
+    }
+
+    public String getPartGroup() {
+        return partGroup;
+    }
+
+    public void setPartGroup(String partGroup) {
+        this.partGroup = partGroup;
     }
 }

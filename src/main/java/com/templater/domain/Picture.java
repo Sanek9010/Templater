@@ -12,6 +12,17 @@ public class Picture implements Part {
     @Column(length=100000)
     private byte[] pictureFile;
 
+    private PartGroup partGroup;
+
+    @ManyToOne
+    public PartGroup getPartGroup() {
+        return partGroup;
+    }
+
+    public void setPartGroup(PartGroup partGroup) {
+        this.partGroup = partGroup;
+    }
+
 
     @ManyToOne
     public Template getTemplate() {

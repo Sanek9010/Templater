@@ -9,6 +9,16 @@ public class Paragraph implements Part {
     private String contentXml;
     private Template template;
     private ParagraphStyle paragraphStyle;
+    private PartGroup partGroup;
+
+    @ManyToOne
+    public PartGroup getPartGroup() {
+        return partGroup;
+    }
+
+    public void setPartGroup(PartGroup partGroup) {
+        this.partGroup = partGroup;
+    }
 
     @ManyToOne
     public ParagraphStyle getParagraphStyle() {

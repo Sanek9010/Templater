@@ -46,6 +46,8 @@ public class TemplateService {
     private ParagraphStyleRepository paragraphStyleRepository;
     @Autowired
     private TableStyleRepository tableStyleRepository;
+    @Autowired
+    private PartGroupRepository partGroupRepository;
 
 
     private XHTMLImporterImpl xhtmlImporter;
@@ -107,19 +109,24 @@ public class TemplateService {
 //        return saved;
 //    }
 
+
+
     public Map<Long,Part> getAllParts(Template template){
         List<Paragraph> paragraphs = paragraphRepository.findByTemplate(template);
         List<Picture> pictures = pictureRepository.findByTemplate(template);
         List<DocTable> tables = tableRepository.findByTemplate(template);
         Map<Long,Part> contentList = new TreeMap<>();
         for (Paragraph p: paragraphs) {
-            contentList.put(p.getNumberInTemplate(),p);
+            if(p.getPartGroup()==null)
+                contentList.put(p.getNumberInTemplate(),p);
         }
         for (Picture picture: pictures) {
-            contentList.put(picture.getNumberInTemplate(),picture);
+            if(picture.getPartGroup()==null)
+                contentList.put(picture.getNumberInTemplate(),picture);
         }
         for (DocTable table: tables) {
-            contentList.put(table.getNumberInTemplate(),table);
+            if(table.getPartGroup()==null)
+                contentList.put(table.getNumberInTemplate(),table);
         }
         return contentList;
     }
@@ -386,12 +393,18 @@ public class TemplateService {
                 }
             });
         }
+        PartGroup partGroup = null;
+        if(requestContent.getPartGroup()!=null && !requestContent.getPartGroup().equals("")){
+            partGroup = partGroupRepository.findById(Long.parseLong(requestContent.getPartGroup())).get();
+        }
         if(requestContent.getEditorType().equals("Paragraph")){
             template.setNumberOfParts(template.getNumberOfParts()+1);
             Paragraph paragraph = new Paragraph();
             paragraph.setContentXml(requestContent.getContent());
             paragraph.setNumberInTemplate( requestContent.getNumberOfPart());
             paragraph.setTemplate(template);
+            if(partGroup!=null)
+                paragraph.setPartGroup(partGroup);
             paragraph.setParagraphStyle(paragraphStyleRepository.findById(Long.parseLong(requestContent.getStyleId())).get());
             return paragraphRepository.save(paragraph);
         } else if(requestContent.getEditorType().equals("Table")){
@@ -400,6 +413,8 @@ public class TemplateService {
             table.setContentXml(requestContent.getContent());
             table.setNumberInTemplate(requestContent.getNumberOfPart());
             table.setTemplate(template);
+            if(partGroup!=null)
+                table.setPartGroup(partGroup);
             table.setTableStyle(tableStyleRepository.findById(Long.parseLong(requestContent.getStyleId())).get());
             return tableRepository.save(table);
         } else if(requestContent.getEditorType().equals("Picture")){
@@ -407,6 +422,8 @@ public class TemplateService {
             Picture picture = new Picture();
             picture.setNumberInTemplate(requestContent.getNumberOfPart());
             picture.setTemplate(template);
+            if(partGroup!=null)
+                picture.setPartGroup(partGroup);
             picture.setPictureFile(requestContent.getPicture());
             return pictureRepository.save(picture);
         } else if(requestContent.getEditorType().equals("ListSdt")){
@@ -424,6 +441,13 @@ public class TemplateService {
             placeholder.setFilled(false);
             return placeholderRepository.save(placeholder);
         } else if(requestContent.getEditorType().equals("RichSdt")){
+            Placeholder placeholder = new Placeholder();
+            placeholder.setTemplate(template);
+            placeholder.setType(requestContent.getEditorType());
+            placeholder.setName(requestContent.getContent());
+            placeholder.setFilled(false);
+            return placeholderRepository.save(placeholder);
+        } else if(requestContent.getEditorType().equals("PartGroup")){
             Placeholder placeholder = new Placeholder();
             placeholder.setTemplate(template);
             placeholder.setType(requestContent.getEditorType());

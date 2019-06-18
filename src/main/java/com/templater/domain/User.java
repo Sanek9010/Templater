@@ -10,7 +10,7 @@ import java.util.Set;
 @Table(name="users")
 public class User {
     private Long id;
-    private String username;//на самом деле это email
+    private String username;
     private String password;
     private Set<Template> templates;
     private Set<Authority> authorities = new HashSet<>();
