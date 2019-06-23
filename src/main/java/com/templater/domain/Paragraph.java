@@ -1,5 +1,7 @@
 package com.templater.domain;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.persistence.*;
 
 @Entity
@@ -9,7 +11,17 @@ public class Paragraph implements Part {
     private String contentXml;
     private Template template;
     private ParagraphStyle paragraphStyle;
+    private TableStyle tableStyle;
     private PartGroup partGroup;
+
+    public Paragraph(){}
+
+    public Paragraph(Paragraph paragraph){
+        this.contentXml = paragraph.getContentXml();
+        this.numberInTemplate = paragraph.getNumberInTemplate();
+        this.paragraphStyle = paragraph.getParagraphStyle();
+        this.tableStyle = paragraph.getTableStyle();
+    }
 
     @ManyToOne
     public PartGroup getPartGroup() {
@@ -27,6 +39,15 @@ public class Paragraph implements Part {
 
     public void setParagraphStyle(ParagraphStyle paragraphStyle) {
         this.paragraphStyle = paragraphStyle;
+    }
+
+    @ManyToOne
+    public TableStyle getTableStyle() {
+        return tableStyle;
+    }
+
+    public void setTableStyle(TableStyle tableStyle) {
+        this.tableStyle = tableStyle;
     }
 
     @ManyToOne
@@ -77,11 +98,6 @@ public class Paragraph implements Part {
         return "";
     }
 
-    public Paragraph(){}
 
-    public Paragraph(Paragraph paragraph){
-        this.contentXml = paragraph.getContentXml();
-        this.numberInTemplate = paragraph.getNumberInTemplate();
-        this.paragraphStyle = paragraph.getParagraphStyle();
-    }
+
 }

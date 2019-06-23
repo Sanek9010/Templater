@@ -5,7 +5,7 @@ CKEDITOR.plugins.add( 'radioPart', {
         editor.ui.addButton( 'radioPart', {
             label: 'Выбрать группу вариантов',
             command: 'insertRadioPart',
-            toolbar: 'insert, 100'
+            toolbar: 'others, 98'
         });
         CKEDITOR.dialog.add( 'insertRadioPart', this.path + 'dialogs/abbr.js' );
     }

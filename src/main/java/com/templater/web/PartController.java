@@ -38,18 +38,12 @@ public class PartController {
     @Autowired
     private PartGroupRepository partGroupRepository;
 
-//    @RequestMapping(value = "paragraph", method = RequestMethod.GET)
-//    public String getParagraph(@PathVariable Long templateId, ModelMap model){
-//        model.put("templateId", templateId);
-//        return "fragments/templateFragments :: paragraphFragment";
-//    }
-
     @RequestMapping(value = "getParts", method = RequestMethod.GET)
     public String getParts(@PathVariable Long templateId, ModelMap modelMap){
         Optional<Template> templateOpt = templateRepo.findById(templateId);
         Map<Long, Part> templateXml = new TreeMap<>();
         if(templateOpt.isPresent())
-            templateXml = templateService.getAllParts(templateOpt.get());
+            templateXml = templateService.getAllParts(templateOpt.get());//мб лучше оставить getDefaultParts
         modelMap.put("templateXmlMap", templateXml);
         return "fragments/templateFragments :: templateXml";
     }
@@ -65,7 +59,7 @@ public class PartController {
     public String getTableStyles(@PathVariable Long templateId, ModelMap modelMap){
         List<TableStyle> styles = tableStyleRepository.findAll();
         modelMap.put("styles", styles);
-        return "fragments/templateFragments :: selectStyle";
+        return "fragments/templateFragments :: selectTableStyle";
     }
 
     @RequestMapping(value = "create", method = RequestMethod.POST)
@@ -93,9 +87,10 @@ public class PartController {
     }
 
     @RequestMapping(value = "createPicture/{key}", method = RequestMethod.POST)
-    public ResponseEntity<?> createPicture(@PathVariable Long templateId, @PathVariable Long key, @RequestParam("picture") MultipartFile picture, HttpServletResponse response) throws IOException {
+    public ResponseEntity<?> createPicture(@PathVariable Long templateId, @PathVariable Long key, @RequestParam("picture") MultipartFile picture,@RequestParam("picturePartGroup") String partGroup, HttpServletResponse response) throws IOException {
         RequestContent requestContent = new RequestContent();
         requestContent.setEditorType("Picture");
+        requestContent.setPartGroup(partGroup);
         requestContent.setNumberOfPart(key);
         requestContent.setPicture(picture.getBytes());
         templateService.savePart(requestContent,templateId);

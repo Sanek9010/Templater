@@ -1,6 +1,7 @@
 package com.templater.domain;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -9,8 +10,21 @@ public class PartGroup {
     private String name;
     private Template template;
     private Set<Paragraph> paragraphs;
-    private Set<DocTable> docTables;
     private Set<Picture> pictures;
+
+    public PartGroup() {}
+
+    public PartGroup(PartGroup partGroup) {
+        this.name = partGroup.getName();
+        this.pictures = new HashSet<>();
+        this.paragraphs = new HashSet<>();
+        for (Paragraph p:partGroup.getParagraphs()) {
+            addParagraph(new Paragraph(p));
+        }
+        for (Picture p:partGroup.getPictures()) {
+            addPicture(new Picture(p));
+        }
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,15 +63,7 @@ public class PartGroup {
         this.paragraphs=paragraphs;
 
     }
-    @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER, mappedBy = "partGroup")
-    public Set<DocTable> getDocTables() {
-        return docTables;
-    }
-    public void setDocTables(Set<DocTable> docTables) {
 
-        this.docTables=docTables;
-
-    }
     @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER, mappedBy = "partGroup")
     public Set<Picture> getPictures() {
         return pictures;
@@ -66,5 +72,15 @@ public class PartGroup {
 
         this.pictures=pictures;
 
+    }
+
+    public void addParagraph(Paragraph paragraph){
+        this.paragraphs.add(paragraph);
+        paragraph.setPartGroup(this);
+    }
+
+    public void addPicture(Picture picture){
+        this.pictures.add(picture);
+        picture.setPartGroup(this);
     }
 }

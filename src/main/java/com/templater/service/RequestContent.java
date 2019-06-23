@@ -4,9 +4,18 @@ public class RequestContent{
     private String editorType;
     private String content;
     private String styleId;
+    private String tableStyleId;
     private String partGroup;
     private Long numberOfPart;
     private byte[] picture;
+
+    public String getTableStyleId() {
+        return tableStyleId;
+    }
+
+    public void setTableStyleId(String tableStyleId) {
+        this.tableStyleId = tableStyleId;
+    }
 
     public String getEditorType() {
         return editorType;

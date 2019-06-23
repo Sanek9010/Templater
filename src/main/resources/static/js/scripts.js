@@ -27,62 +27,28 @@ function createParagraph0() {
             { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi', 'paragraph' ] },
             { name: 'links', groups: [ 'links' ] },
             { name: 'insert', groups: [ 'insert' ] },
-            '/',
             { name: 'styles', groups: [ 'styles' ] },
             { name: 'colors', groups: [ 'colors' ] },
             { name: 'tools', groups: [ 'tools' ] },
             { name: 'others', groups: [ 'others' ] },
             { name: 'about', groups: [ 'about' ] }
         ],
-        extraPlugins:'sdt, sdtList, sdtTable, chooseStyle, sdtPicture, sdtRich, radioPart, radioPartChoose',
-        removeButtons: 'Source,Save,NewPage,Preview,Print,Templates,Cut,Paste,PasteText,PasteFromWord,Replace,SelectAll,Find,Undo,Redo,Copy,Scayt,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,Strike,CopyFormatting,RemoveFormat,Outdent,Indent,Blockquote,CreateDiv,BidiLtr,BidiRtl,Language,Link,Unlink,Anchor,EasyImageUpload,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,Format,Font,FontSize,TextColor,BGColor,Maximize,ShowBlocks,About',
-
-        //removeButtons: 'Source,Save,NewPage,Preview,Print,Templates,Cut,Copy,Paste,PasteText,PasteFromWord,Redo,Undo,Find,Replace,SelectAll,Scayt,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,Strike,CopyFormatting,RemoveFormat,Blockquote,CreateDiv,Indent,Outdent,Language,BidiRtl,BidiLtr,Link,Unlink,Anchor,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,BGColor,TextColor,Maximize,ShowBlocks,About,EasyImageUpload',
+        extraPlugins:'sdt, sdtList, sdtTable, chooseStyle, sdtPicture, sdtRich, radioPart, radioPartChoose, chooseTableStyle',
+        removeButtons: 'Source,Save,NewPage,Preview,Print,Templates,Cut,Copy,Paste,PasteText,PasteFromWord,Redo,Undo,Find,Replace,SelectAll,Scayt,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,Strike,CopyFormatting,RemoveFormat,Indent,Outdent,CreateDiv,Blockquote,Language,BidiRtl,BidiLtr,Link,Unlink,Anchor,EasyImageUpload,Flash,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,Format,Font,FontSize,TextColor,BGColor,ShowBlocks,Maximize,About',
     });
     $('#createButtons').prop('hidden',true);
-    // $('#createTableButton').prop('disabled', true);
-    // $('#createPictureButton').prop('disabled', true);
-    // $('#createParagraphButton').prop('disabled', true);
     $('#paragraphForm').prop('hidden', false);
     editorType="Paragraph";
-    //todo  изменить редактор(запретить контент которого тут не должно быть)
 }
 function createPicture0() {
+    var url = window.location.href + '/getPartGroups';
+    $("#partGroupForPicture").load(url);
     $('#paragraphForm').prop('hidden', false);
     $('#createButtons').prop('hidden',true);
     $('#picture').prop('hidden', false);
     editorType="Picture";
 }
-function createTable0() {
-    try {
-        CKEDITOR.instances.editor.destroy();
-    } catch (e) {
-        console.log(e);
-    }
-    CKEDITOR.replace( 'editor', {
-        toolbarGroups: [
-            { name: 'document', groups: [ 'mode', 'document', 'doctools' ] },
-            { name: 'clipboard', groups: [ 'clipboard', 'undo' ] },
-            { name: 'editing', groups: [ 'find', 'selection', 'spellchecker', 'editing' ] },
-            { name: 'forms', groups: [ 'forms' ] },
-            '/',
-            { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
-            { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi', 'paragraph' ] },
-            { name: 'links', groups: [ 'links' ] },
-            { name: 'styles', groups: [ 'styles' ] },
-            { name: 'insert', groups: [ 'insert' ] },
-            { name: 'colors', groups: [ 'colors' ] },
-            { name: 'tools', groups: [ 'tools' ] },
-            { name: 'others', groups: [ 'others' ] },
-            { name: 'about', groups: [ 'about' ] }
-        ],
-        extraPlugins:'chooseTableStyle, radioPart, radioPartChoose',
-        removeButtons: 'Source,Save,NewPage,Preview,Print,Templates,Cut,Copy,Paste,PasteText,PasteFromWord,Undo,Redo,Find,Replace,SelectAll,Scayt,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,Strike,CopyFormatting,RemoveFormat,BulletedList,NumberedList,Outdent,Indent,CreateDiv,Blockquote,JustifyLeft,JustifyCenter,JustifyRight,JustifyBlock,Language,BidiRtl,BidiLtr,Link,Unlink,Anchor,Flash,EasyImageUpload,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,FontSize,Font,Format,Styles,TextColor,BGColor,ShowBlocks,Maximize,About'
-    });
-    $('#createButtons').prop('hidden',true);
-    $('#paragraphForm').prop('hidden', false);
-    editorType="Table";
-}
+
 function deletePart(key) {
     let urlString= window.location.href + "/deletePart";
     var token = $('#_csrf').attr('content');
@@ -125,7 +91,6 @@ function editPart(key) {
             { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi', 'paragraph' ] },
             { name: 'links', groups: [ 'links' ] },
             { name: 'insert', groups: [ 'insert' ] },
-            '/',
             { name: 'styles', groups: [ 'styles' ] },
             { name: 'colors', groups: [ 'colors' ] },
             { name: 'tools', groups: [ 'tools' ] },
@@ -133,8 +98,8 @@ function editPart(key) {
             { name: 'about', groups: [ 'about' ] }
         ],
         width:'90%',
-        extraPlugins:'sdt, sdtList, sdtTable, chooseStyle',
-        removeButtons: 'Source,Save,NewPage,Preview,Print,Templates,Cut,Paste,PasteText,PasteFromWord,Replace,SelectAll,Find,Undo,Redo,Copy,Scayt,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,Strike,CopyFormatting,RemoveFormat,Outdent,Indent,Blockquote,CreateDiv,BidiLtr,BidiRtl,Language,Link,Unlink,Anchor,EasyImageUpload,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,Format,Font,FontSize,TextColor,BGColor,Maximize,ShowBlocks,About',
+        extraPlugins:'sdt, sdtList, sdtTable, chooseStyle, sdtPicture, sdtRich, radioPart, radioPartChoose, chooseTableStyle',
+        removeButtons: 'Source,Save,NewPage,Preview,Print,Templates,Cut,Copy,Paste,PasteText,PasteFromWord,Redo,Undo,Find,Replace,SelectAll,Scayt,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,Strike,CopyFormatting,RemoveFormat,Indent,Outdent,CreateDiv,Blockquote,Language,BidiRtl,BidiLtr,Link,Unlink,Anchor,EasyImageUpload,Flash,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Styles,Format,Font,FontSize,TextColor,BGColor,ShowBlocks,Maximize,About',
 
     });
     var savebutton = '#'+key+'saveButton';
@@ -154,6 +119,10 @@ function postEditedPart(key){
     var contentObj={};
     contentObj.partId = key;
     contentObj.content = data;
+    var currentStyle = $("#currentStyle").text();
+    var currentTableStyle = $("#currentTableStyle").text();
+    contentObj.styleId = currentStyle;
+    contentObj.tableStyleId = currentTableStyle;
     var token = $('#_csrf').attr('content');
     var header = $('#_csrf_header').attr('content');
     $.ajax({
@@ -171,13 +140,6 @@ function postEditedPart(key){
         $(savebutton).prop('hidden',true);
         $(editButton).prop('hidden',false);
         $(deleteButton).prop('hidden',false);
-        // $('#createButtons').prop('hidden',false);
-        // // $('#paragraphEditor').prop('hidden', true);
-        // // $('#tableEditor').prop('hidden', true);
-        // // $('#pictureEditor').prop('hidden', true);
-        // $('#listSdt').prop('hidden', true);
-        // $('#tableSdt').prop('hidden', true);
-        // $('#paragraphForm').prop('hidden', true);
     });
 }
 
@@ -193,6 +155,8 @@ function postPart() {
 }
 
 function pictureAjaxSubmit(key) {
+    var picturePartGroup = $('#picturePartGroup');
+    picturePartGroup.val( $("#selectPartGroup").val());
     var myform = document.getElementById('picture');
     var fd = new FormData(myform);
     key = (key+1);
@@ -224,16 +188,15 @@ function fireAjaxSubmit(content,key) {
     contentObj.editorType = editorType;
     contentObj.content = content;
     contentObj.partGroup ='';
-    var currentStyle;
-    if(editorType=="Table")
-        currentStyle = $("#currentTableStyle").text();
-    else
-        currentStyle = $("#currentStyle").text();
+    var currentStyle = $("#currentStyle").text();
+    var currentTableStyle = $("#currentTableStyle").text();
+
     var partGroup = $("#radioPart").text();
     if(partGroup!=""){
         contentObj.partGroup=partGroup;
     }
     contentObj.styleId = currentStyle;
+    contentObj.tableStyleId = currentTableStyle;
     contentObj.numberOfPart = key+1;
     let urlString;
     urlString= window.location.href + "/create";

@@ -5,7 +5,7 @@ CKEDITOR.plugins.add( 'sdtRich', {
         editor.ui.addButton( 'sdtRich', {
             label: 'Место для раздела',
             command: 'insertSdtRich',
-            toolbar: 'insert,10'
+            toolbar: 'others,10'
         });
         CKEDITOR.dialog.add( 'insertSdtRich', this.path + 'dialogs/abbr.js' );
     }

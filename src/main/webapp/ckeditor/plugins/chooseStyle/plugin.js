@@ -5,7 +5,7 @@ CKEDITOR.plugins.add( 'chooseStyle', {
         editor.ui.addButton( 'chooseStyle', {
             label: 'Выбрать стиль',
             command: 'insertChooseStyle',
-            toolbar: 'insert, 100'
+            toolbar: 'styles, 100'
         });
         CKEDITOR.dialog.add( 'insertChooseStyle', this.path + 'dialogs/abbr.js' );
     }

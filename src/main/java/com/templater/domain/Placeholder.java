@@ -3,6 +3,7 @@ package com.templater.domain;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 @Entity
@@ -16,6 +17,19 @@ public class Placeholder {
     private Boolean filled;
     private MultipartFile pictureFile;
     private byte[] pictureBytes;
+    private String pictureBytesString;
+
+    public Placeholder(){}
+
+    public Placeholder(Placeholder placeholder){
+        this.contentXml = placeholder.getContentXml();
+        this.filled = placeholder.getFilled();
+        this.name = placeholder.getName();
+        this.pictureBytes = placeholder.getPictureBytes();
+        this.pictureFile = placeholder.getPictureFile();
+        this.type = placeholder.getType();
+        this.pictureBytesString = placeholder.getPictureBytesString();
+    }
 
     @javax.persistence.Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -97,14 +111,15 @@ public class Placeholder {
         this.pictureBytes = pictureBytes;
     }
 
-    public Placeholder(){}
-
-    public Placeholder(Placeholder placeholder){
-        this.contentXml = placeholder.getContentXml();
-        this.filled = placeholder.getFilled();
-        this.name = placeholder.getName();
-        this.pictureBytes = placeholder.getPictureBytes();
-        this.pictureFile = placeholder.getPictureFile();
-        this.type = placeholder.getType();
+    @Transient
+    public String getPictureBytesString() {
+        return pictureBytesString;
     }
+
+    public void setPictureBytesString(String pictureBytesString) {
+        this.pictureBytes = Base64.getDecoder().decode(pictureBytesString);
+        this.pictureBytesString = pictureBytesString;
+    }
+
+
 }

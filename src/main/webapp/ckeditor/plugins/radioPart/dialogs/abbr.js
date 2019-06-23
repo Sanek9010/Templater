@@ -43,8 +43,8 @@ CKEDITOR.dialog.add( 'insertRadioPart', function ( editor ) {
         }
         ,
         onOk: function() {
-            var style = document.getElementById('radioPart');
-            style.innerText = $("#selectPartGroup").val();
+            var radioPart = document.getElementById('radioPart');
+            radioPart.innerText = $("#selectPartGroup").val();
         }
     };
 });

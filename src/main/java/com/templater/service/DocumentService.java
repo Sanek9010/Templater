@@ -23,8 +23,6 @@ public class DocumentService {
     private ParagraphRepository paragraphRepository;
     @Autowired
     private PictureRepository pictureRepository;
-    @Autowired
-    private TableRepository tableRepository;
 
 
     public Document createDocument(Long templateId,User user){
@@ -69,13 +67,14 @@ public class DocumentService {
 
     public WordprocessingMLPackage convertToDocx(Document document){
         try{
-            Map<Long, Part> parts = templateService.getAllParts(document.getTemplate());
+            Template currentTemplate = new Template(document.getTemplate());
+            Map<Long, Part> parts = templateService.getDefaultParts(currentTemplate);
             for (Part part:parts.values()) {
                 for (Placeholder placeholder: document.getPlaceholders()) {
                     if(placeholder.getType().equals("PictureSdt")) {
                         if (part instanceof Picture) {
                             if ((part).getContentXml().equals(placeholder.getName())) {
-                                ((Picture) part).setPictureFile(placeholder.getPictureBytes());
+                                ((Picture) part).setPictureBytes(placeholder.getPictureBytes());
                             }
                         }else {
                             String placeholderString = "{{type:" + placeholder.getType() + ", name:" + placeholder.getName() + "}}";
@@ -83,17 +82,31 @@ public class DocumentService {
                         }
                     } else {
                         if (!(part instanceof Picture)) {
-                            if(placeholder.getContentXml()!=null) {
+                            if(placeholder.getContentXml()!=null&&!placeholder.getContentXml().equals("")) {
                                 String placeholderString = "{{type:" + placeholder.getType() + ", name:" + placeholder.getName() + "}}";
                                 int i = part.getContentXml().indexOf(placeholderString);
                                 if (i != -1)
                                     part.setContentXml(templateService.cleanHtml(part.getContentXml().replace(placeholderString, placeholder.getContentXml())));
+                            } else {
+
+                                String placeholderString = "{{type:" + placeholder.getType() + ", name:" + placeholder.getName() + "}}";
+                                int i = part.getContentXml().indexOf(placeholderString);
+                                if (i != -1) {
+                                    RequestContent requestContent = new RequestContent();
+                                    requestContent.setPartGroup("4");
+                                    requestContent.setEditorType("Picture");
+                                    requestContent.setPicture(placeholder.getPictureBytes());
+                                    requestContent.setNumberOfPart(part.getNumberInTemplate());
+                                    templateService.savePart(requestContent,part.getTemplate().getId());
+                                    part.setContentXml(templateService.cleanHtml(part.getContentXml().replace(placeholderString, "")));
+                                }
                             }
                         }
                     }
                 }
             }
-            return templateService.convertToDocx(parts,document.getTemplate());
+
+            return templateService.convertToDocx(parts,currentTemplate);
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -106,7 +119,6 @@ public class DocumentService {
         for (PartGroup partGroup:partGroups) {
             List<Part> parts = new ArrayList<>();
             parts.addAll(partGroup.getParagraphs());
-            parts.addAll(partGroup.getDocTables());
             parts.addAll(partGroup.getPictures());
             contentList.put(partGroup.getName(),parts);
         }

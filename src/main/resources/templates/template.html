@@ -5,7 +5,6 @@
     <meta id="_csrf" name="_csrf" th:content="${_csrf.token}"/>
     <meta id="_csrf_header" name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>Создание шаблона</title>
-<!--    <link rel="stylesheet" type="text/css" th:href="@{/static/css/document-editor.css}" href="../static/css/document-editor.css">-->
     <script th:replace="fragments/header :: headerElement"></script>
     <script type="text/javascript" th:src="@{../ckeditor/ckeditor.js}"></script>
     <script type="text/javascript" th:src="@{/js/scripts.js}"></script>
@@ -13,7 +12,6 @@
 </head>
 <body >
 <!--@thymesVar id="template" type="com.templater.domain.Template"-->
-
 <div th:replace="fragments/header :: header"></div>
 <div class="container" th:if="${template != null}">
     <div class="card mt-3">
@@ -45,33 +43,30 @@
                     <button type="submit" class="btn btn-primary ml-4">Сохранить</button>
                 </div>
             </form>
-
-<!--                <div style="overflow-y:scroll; overflow-x:visible; height: 400px; resize:vertical;" class="card col-12 m-1" id="partsList">-->
-<!--                </div>-->
-
                 <div class="card col-12 m-1" id="partsList"></div>
-
                 <div id="createPart">
                     <div id="paragraphForm" class="card" hidden>
                         <textarea name="content" id="editor" hidden>
                         </textarea>
                         <form action="/createPicture" id="picture" method="post" enctype="multipart/form-data" hidden>
                             <input type="file"  class="form-control" name="picture" accept="image/jpeg,image/png,image/gif" />
+                            <input type="hidden" id="picturePartGroup" name="picturePartGroup" />
                         </form>
+                        <div id="partGroupForPicture">
+
+                        </div>
                         <button type="button" id="postEditor" class="btn btn-primary" onclick="postPart()">Сохранить</button>
                     </div>
 
                     <div class="btn-group row m-3 col-auto" role="group" aria-label="Basic example" id="createButtons">
-                        <button type="button" id="createParagraphButton" class="btn btn-secondary col-auto" onclick="createParagraph0()" >Добавить параграф</button>
+                        <button type="button" id="createParagraphButton" class="btn btn-secondary col-auto" onclick="createParagraph0()" >Добавить раздел</button>
                         <button type="button" id="createPictureButton" class="btn btn-secondary col-auto" onclick="createPicture0()">Добавить изображение</button>
-                        <button type="button" id="createTableButton" class="btn btn-secondary col-auto" onclick="createTable0()">Добавить таблицу</button>
                     </div>
                 </div>
                 <p id="key" hidden>1</p>
                 <p id="currentStyle" hidden></p>
                 <p id="currentTableStyle" hidden></p>
                 <p id="radioPart" hidden></p>
-
                 <div class = "form-group row m-3 col-6">
                     <a href="/templates" class="btn btn-secondary">Назад</a>
                     <a id="getDocx" class="btn btn-info ml-4">Скачать в формате docx</a>
@@ -79,7 +74,5 @@
         </div>
     </div>
 </div>
-
-
 </body>
 </html>

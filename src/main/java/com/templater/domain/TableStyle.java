@@ -15,16 +15,16 @@ public class TableStyle implements StyleInterface {
     private String name;
     private int sz;
     private String val;
-    private Set<DocTable> docTables;
+    private Set<Paragraph> paragraphs;
     private ParagraphStyle paragraphStyle;
 
     @OneToMany(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY, mappedBy = "tableStyle")
-    public Set<DocTable> getDocTables() {
-        return docTables;
+    public Set<Paragraph> getParagraphs() {
+        return paragraphs;
     }
 
-    public void setDocTables(Set<DocTable> docTables) {
-        this.docTables = docTables;
+    public void setParagraphs(Set<Paragraph> paragraphs) {
+        this.paragraphs = paragraphs;
     }
 
     @Id
@@ -94,7 +94,7 @@ public class TableStyle implements StyleInterface {
         TblPr tblPr = factory.createTblPr();
         TblBorders tblBorders = factory.createTblBorders();
         CTBorder ctBorder = factory.createCTBorder();
-        if(val.equals("Single"))
+        if(val.equals("single"))
             ctBorder.setVal(STBorder.SINGLE);
         else
             ctBorder.setVal(STBorder.DOUBLE);

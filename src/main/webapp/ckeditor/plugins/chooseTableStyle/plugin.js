@@ -5,7 +5,7 @@ CKEDITOR.plugins.add( 'chooseTableStyle', {
         editor.ui.addButton( 'chooseTableStyle', {
             label: 'Выбрать стиль',
             command: 'insertChooseTableStyle',
-            toolbar: 'insert, 100'
+            toolbar: 'styles, 100'
         });
         CKEDITOR.dialog.add( 'insertChooseTableStyle', this.path + 'dialogs/abbr.js' );
     }

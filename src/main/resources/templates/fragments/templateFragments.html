@@ -25,13 +25,19 @@
 </div>
 
 <div th:fragment="templateXml" >
-    <!--@thymesVar id="templateXmlMap" type="Map<Long,String>"-->
+    <!--@thymesVar id="templateXmlMap" type="Map<Long,com.templater.domain.Part>"-->
     <div th:id="${entry.key}" class="border-top border-bottom" th:each="entry:${templateXmlMap.entrySet()}" >
         <div class="row">
             <div th:if="${entry.value.getType()=='Picture'}">
                 <img th:src="@{'data:image/jpg;base64,'+${entry.value.getPicture()}}" />
             </div>
-            <div th:if="${entry.value.getType()!='Picture'}" th:id="${entry.key}+textarea" class="col-10" style="margin: 0;" th:utext="${entry.value.getContentXml()}"></div>
+            <div th:if="${entry.value.getPartGroup().getName()!='Default'}" class="col-10 row">
+                <div th:if="${entry.value.getType()!='Picture'}" th:id="${entry.key}+textarea" class="col-10" style="margin: 0;" th:utext="${entry.value.getContentXml()}"></div>
+                <span class="col-2"  th:text="${entry.value.getPartGroup().getName()}"></span>
+            </div>
+            <div th:if="${entry.value.getPartGroup().getName()=='Default'}" class="col-10">
+                <div th:if="${entry.value.getType()!='Picture'}" th:id="${entry.key}+textarea" class="col-12" style="margin: 0;" th:utext="${entry.value.getContentXml()}"></div>
+            </div>
             <div class="col-2 row">
                 <button type="button" th:id="${entry.key}+deleteButton" style="height: 30px; width:30px; padding:0"  class="btn btn btn-light btn-sm mt-2 mr-2 border border-secondary" th:onclick="'deletePart('+${entry.key}+')'"><img th:src="@{/img/baseline_delete_black_18dp.png}" alt="Удалить" /></button>
                 <button type="button" th:id="${entry.key}+editButton" style="height: 30px; width:30px; padding:0" class="btn btn btn-light btn-sm mt-2 mr-2 border border-secondary" th:onclick="'editPart('+${entry.key}+')'"><img th:src="@{/img/baseline_edit_black_18dp.png}" alt="Изменить" /></button>
@@ -44,6 +50,14 @@
 
 <div th:fragment="selectStyle" >
     <select id="selectedStyle">
+        <option th:each="style:${styles}"
+                th:value="${style.id}"
+                th:text="${style.name}"></option>
+    </select>
+</div>
+
+<div th:fragment="selectTableStyle" >
+    <select id="selectedTableStyle">
         <option th:each="style:${styles}"
                 th:value="${style.id}"
                 th:text="${style.name}"></option>

@@ -115,6 +115,15 @@ public class TemplateController {
         return "redirect:/templates";
     }
 
+    @RequestMapping(value = "/templates/{templateId}/copyTemplate", method = RequestMethod.GET)
+    public String copyTemplate(@PathVariable Long templateId,ModelMap model, HttpServletResponse response) throws IOException {
+        Optional<Template> templateOptional = templateRepo.findById(templateId);
+        Template template = templateOptional.get();
+        Template newTemplate = new Template(template);
+        newTemplate = templateService.deepSave(newTemplate);
+        return "redirect:/templates/"+newTemplate.getId();
+    }
+
 
     @RequestMapping(value = "/templates/{templateId}/getDocx", method = RequestMethod.GET)
     public ResponseEntity<Resource> getDocx(@PathVariable Long templateId, HttpServletResponse response) throws IOException {
@@ -129,7 +138,7 @@ public class TemplateController {
         String fileLocation = baseURL + "/OUT_from_XHTML.docx";
         File file = new java.io.File(fileLocation);
         try {
-            Map<Long, Part> parts = templateService.getAllParts(actualTemplate);
+            Map<Long, Part> parts = templateService.getDefaultParts(actualTemplate);
             templateService.convertToDocx(parts, actualTemplate).save(file);
         } catch (Docx4JException e) {
             e.printStackTrace();

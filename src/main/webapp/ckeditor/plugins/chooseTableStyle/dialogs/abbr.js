@@ -12,7 +12,7 @@ CKEDITOR.dialog.add( 'insertChooseTableStyle', function ( editor ) {
                     {
                         id: 'tableRow',
                         type: 'html',
-                        html:'<div id="placeForStyle"></div>'
+                        html:'<div id="placeForTableStyle"></div>'
 
                     },
                     // UI elements of the first tab    will be defined here.
@@ -21,12 +21,12 @@ CKEDITOR.dialog.add( 'insertChooseTableStyle', function ( editor ) {
         ],
         onLoad: function () {
             var url = window.location.href + '/getTableStyles';
-            $("#placeForStyle").load(url);
+            $("#placeForTableStyle").load(url);
         }
         ,
         onOk: function() {
             var style = document.getElementById('currentTableStyle');
-            style.innerText = $("#selectedStyle").val();
+            style.innerText = $("#selectedTableStyle").val();
         }
     };
 });

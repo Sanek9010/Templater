@@ -1,5 +1,10 @@
 package com.templater.domain;
 
+import com.templater.service.CustomMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import javax.persistence.*;
 
@@ -10,9 +15,16 @@ public class Picture implements Part {
     private Long numberInTemplate;
     private Template template;
     @Column(length=100000)
-    private byte[] pictureFile;
-
+    private byte[] pictureBytes;
     private PartGroup partGroup;
+
+    public Picture(){}
+
+    public Picture(Picture picture){
+        this.contentXml = picture.getContentXml();
+        this.numberInTemplate = picture.getNumberInTemplate();
+        this.pictureBytes = picture.getPictureBytes();
+    }
 
     @ManyToOne
     public PartGroup getPartGroup() {
@@ -60,12 +72,12 @@ public class Picture implements Part {
     }
 
     @Lob
-    public byte[] getPictureFile() {
-        return pictureFile;
+    public byte[] getPictureBytes() {
+        return pictureBytes;
     }
 
-    public void setPictureFile(byte[] pictureFile) {
-        this.pictureFile = pictureFile;
+    public void setPictureBytes(byte[] pictureFile) {
+        this.pictureBytes = pictureFile;
     }
 
     @Transient
@@ -77,15 +89,10 @@ public class Picture implements Part {
     @Transient
     @Override
     public String getPicture() {
-        byte[] encoded = Base64.getEncoder().encode(getPictureFile());
+        byte[] encoded = Base64.getEncoder().encode(getPictureBytes());
         return new String(encoded);
     }
 
-    public Picture(){}
 
-    public Picture(Picture picture){
-        this.contentXml = picture.getContentXml();
-        this.numberInTemplate = picture.getNumberInTemplate();
-        this.pictureFile = picture.getPictureFile();
-    }
+
 }
