@@ -11,6 +11,4 @@ import java.util.List;
 public interface TemplateRepository extends JpaRepository<Template, Long> {
 
     List<Template> findByPrivateTemplate(Boolean privateTemplate);
-
-    List<Template> findByUser(User user);
 }

@@ -18,12 +18,12 @@ public class Template {
     private LocalDate dateOfCreation;
     private Long numberOfParts;
     private Boolean privateTemplate;
-    private User user;
-    private Set<Paragraph> paragraphs;
-    private Set<Picture> pictures;
-    private Set<Document> documents;
-    private Set<Placeholder> placeholders;
-    private Set<PartGroup> partGroups;
+    private Set<User> users = new HashSet<>();
+    private Set<Paragraph> paragraphs = new HashSet<>();
+    private Set<Picture> pictures = new HashSet<>();
+    private Set<Document> documents = new HashSet<>();
+    private Set<Placeholder> placeholders = new HashSet<>();
+    private Set<PartGroup> partGroups = new HashSet<>();
 
     public Template(){}
 
@@ -31,7 +31,7 @@ public class Template {
         this.setPrivateTemplate(template.getPrivateTemplate());
         this.setName(template.getName());
         this.setNumberOfParts(template.getNumberOfParts());
-        this.setUser(template.user);
+        this.setUsers(template.users);
         this.placeholders = new HashSet<>();
         this.pictures = new HashSet<>();
         this.paragraphs = new HashSet<>();
@@ -99,14 +99,21 @@ public class Template {
 
     }
 
-    @ManyToOne
-    public User getUser() {
-        return user;
+    @ManyToMany
+    @JoinTable(
+            name = "users_template",
+            joinColumns = @JoinColumn(name = "template_id"),
+            inverseJoinColumns = @JoinColumn(name = "users_id"))
+    public Set<User> getUsers() {
+        return users;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUsers(Set<User> users) {
+        this.users = users;
     }
+
+
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

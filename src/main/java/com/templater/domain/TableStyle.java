@@ -6,6 +6,7 @@ import org.docx4j.wml.*;
 import javax.persistence.*;
 import javax.persistence.Id;
 import java.math.BigInteger;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -15,7 +16,7 @@ public class TableStyle implements StyleInterface {
     private String name;
     private int sz;
     private String val;
-    private Set<Paragraph> paragraphs;
+    private Set<Paragraph> paragraphs = new HashSet<>();
     private ParagraphStyle paragraphStyle;
 
     @OneToMany(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY, mappedBy = "tableStyle")

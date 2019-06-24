@@ -6,6 +6,7 @@ import org.docx4j.wml.*;
 import javax.persistence.*;
 import javax.persistence.Id;
 import java.math.BigInteger;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -25,8 +26,8 @@ public class ParagraphStyle implements StyleInterface {
     private Double firstLineIndent;
     private Double leftIndent;
     private Double rightIndent;
-    private Set<Paragraph> paragraphs;
-    private Set<TableStyle> tableStyles;
+    private Set<Paragraph> paragraphs = new HashSet<>();
+    private Set<TableStyle> tableStyles = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY, mappedBy = "paragraphStyle")
     public Set<Paragraph> getParagraphs() {

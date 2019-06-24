@@ -9,8 +9,8 @@ public class PartGroup {
     private Long id;
     private String name;
     private Template template;
-    private Set<Paragraph> paragraphs;
-    private Set<Picture> pictures;
+    private Set<Paragraph> paragraphs = new HashSet<>();
+    private Set<Picture> pictures = new HashSet<>();
 
     public PartGroup() {}
 

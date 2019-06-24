@@ -7,6 +7,7 @@ import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -16,7 +17,7 @@ public class Document {
     private String name;
     private LocalDate dateOfCreation;
     private Template template;
-    private List<Placeholder> placeholders;
+    private List<Placeholder> placeholders = new ArrayList<>();
     private User user;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "document")

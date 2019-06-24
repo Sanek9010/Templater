@@ -12,11 +12,15 @@ public class User {
     private Long id;
     private String username;
     private String password;
-    private Set<Template> templates;
+    private Set<Template> templates = new HashSet<>();
     private Set<Authority> authorities = new HashSet<>();
-    private Set<Document> documents;
+    private Set<Document> documents = new HashSet<>();
 
-    @OneToMany(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY, mappedBy = "user")
+    @ManyToMany
+    @JoinTable(
+            name = "users_template",
+            joinColumns = @JoinColumn(name = "users_id"),
+            inverseJoinColumns = @JoinColumn(name = "template_id"))
     public Set<Template> getTemplates() {
         return templates;
     }

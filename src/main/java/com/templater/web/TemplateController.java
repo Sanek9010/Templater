@@ -2,6 +2,7 @@ package com.templater.web;
 
 import com.templater.domain.*;
 import com.templater.repositories.TemplateRepository;
+import com.templater.repositories.UserRepository;
 import com.templater.security.Authority;
 import com.templater.service.TemplateService;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
@@ -32,6 +33,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @Controller
 public class TemplateController {
@@ -39,6 +41,8 @@ public class TemplateController {
     private TemplateService templateService;
     @Autowired
     private TemplateRepository templateRepo;
+    @Autowired
+    private UserRepository userRepository;
 
     @PersistenceContext
     private EntityManager em;
@@ -50,7 +54,8 @@ public class TemplateController {
 
     @RequestMapping(value = "/templates", method = RequestMethod.GET)
     public String myTemplateList(ModelMap model,@AuthenticationPrincipal User user){
-        List<Template> templates = templateRepo.findByUser(user);
+        User user1 = userRepository.findById(user.getId()).get();
+        Set<Template> templates = user1.getTemplates();
         model.put("templates", templates);
         for (Authority authority:user.getAuthorities()) {
             if(authority.getAuthority().equals("ROLE_SUPERUSER")){
@@ -73,20 +78,21 @@ public class TemplateController {
     public String addToMyTemlates(@PathVariable Long templateId,@AuthenticationPrincipal User user){
         Optional<Template> templateOptional = templateRepo.findById(templateId);
         Template template = templateOptional.get();
-        if(!template.getUser().getUsername().equals(user.getUsername())){
-            Template templateClone = new Template(template);
-            templateClone.setUser(user);
-            em.persist(templateClone);
-        }
+        template.getUsers().add(user);
+        user.getTemplates().add(template);
+        template =templateService.save(template);
+        //user = userRepository.save(user);
         return "redirect:/allTemplates";
     }
 
     @RequestMapping(value = "/templates", method = RequestMethod.POST)
     public String createTemplate(@AuthenticationPrincipal User user){
         Template template = new Template();
-        template.setUser(user);
+        template.getUsers().add(user);
+        user.getTemplates().add(template);
         template.setNumberOfParts(0L);
         template =templateService.save(template);
+        //user = userRepository.save((User) user);
         return "redirect:/templates/"+template.getId();
     }
 
@@ -104,8 +110,12 @@ public class TemplateController {
 
     @RequestMapping(value = "/templates/{templateId}", method = RequestMethod.POST)
     public String updateTemplate(@AuthenticationPrincipal User user, @PathVariable Long templateId, @ModelAttribute Template template){
-        template.setUser(user);
+        Template oldTemplate = templateRepo.findById(templateId).get();
+        template.setUsers(oldTemplate.getUsers());
+        template.getUsers().add(user);
+        user.getTemplates().add(template);
         Template savedTemplate = templateService.save(template);
+        //user = userRepository.save(user);
         return "redirect:/templates/"+templateId;
     }
 
