@@ -1,6 +1,7 @@
 package com.templater.web;
 
 import com.templater.domain.*;
+import com.templater.repositories.PartGroupRepository;
 import com.templater.repositories.TemplateRepository;
 import com.templater.repositories.UserRepository;
 import com.templater.security.Authority;
@@ -43,9 +44,8 @@ public class TemplateController {
     private TemplateRepository templateRepo;
     @Autowired
     private UserRepository userRepository;
-
-    @PersistenceContext
-    private EntityManager em;
+    @Autowired
+    private PartGroupRepository partGroupRepository;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String indexView(){
@@ -68,7 +68,6 @@ public class TemplateController {
     @RequestMapping(value = "/allTemplates", method = RequestMethod.GET)
     public String templateList(ModelMap model){
         List<Template> templates = templateRepo.findByPrivateTemplate(false);
-
         model.put("templates", templates);
         return "allTemplates";
     }
@@ -80,8 +79,7 @@ public class TemplateController {
         Template template = templateOptional.get();
         template.getUsers().add(user);
         user.getTemplates().add(template);
-        template =templateService.save(template);
-        //user = userRepository.save(user);
+        templateService.save(template);
         return "redirect:/allTemplates";
     }
 
@@ -90,9 +88,12 @@ public class TemplateController {
         Template template = new Template();
         template.getUsers().add(user);
         user.getTemplates().add(template);
+        PartGroup partGroup = new PartGroup();
+        partGroup.setName("Default");
+        partGroup.setTemplate(template);
         template.setNumberOfParts(0L);
         template =templateService.save(template);
-        //user = userRepository.save((User) user);
+        partGroupRepository.save(partGroup);
         return "redirect:/templates/"+template.getId();
     }
 
@@ -114,8 +115,7 @@ public class TemplateController {
         template.setUsers(oldTemplate.getUsers());
         template.getUsers().add(user);
         user.getTemplates().add(template);
-        Template savedTemplate = templateService.save(template);
-        //user = userRepository.save(user);
+        templateService.save(template);
         return "redirect:/templates/"+templateId;
     }
 

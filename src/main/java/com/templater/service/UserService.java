@@ -20,7 +20,7 @@ public class UserService {
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
         Authority autority = new Authority();
-        autority.setAuthority("ROLE_USER");
+        autority.setAuthority("ROLE_SUPERUSER");
         autority.setUser(user);
         user.getAuthorities().add(autority);
         return userRepo.save(user);

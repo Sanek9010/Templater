@@ -9,7 +9,6 @@ public class Paragraph implements Part {
     private Long id;
     private Long numberInTemplate;
     private String contentXml;
-    private Template template;
     private ParagraphStyle paragraphStyle;
     private TableStyle tableStyle;
     private PartGroup partGroup;
@@ -48,15 +47,6 @@ public class Paragraph implements Part {
 
     public void setTableStyle(TableStyle tableStyle) {
         this.tableStyle = tableStyle;
-    }
-
-    @ManyToOne
-    public Template getTemplate() {
-        return template;
-    }
-
-    public void setTemplate(Template template) {
-        this.template = template;
     }
 
     @Column(columnDefinition = "TEXT")

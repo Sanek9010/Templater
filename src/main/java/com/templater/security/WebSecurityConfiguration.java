@@ -17,7 +17,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     private UserDetailsService userDetailsService;
 
     @Bean
-    public PasswordEncoder getPasswordEncoder(){
+    public PasswordEncoder getPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -32,10 +32,13 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/").permitAll()
-                .antMatchers("/register").permitAll()
-                .anyRequest().hasRole("USER")
+                .anyRequest().permitAll()
                 .and().formLogin().loginPage("/login").permitAll()
                 .and().logout().logoutUrl("/logout").permitAll();
+//                .antMatchers("/").permitAll()
+//                .antMatchers("/register").permitAll()
+//                .anyRequest().hasRole("SUPERUSER")
+//                .and().formLogin().loginPage("/login").permitAll()
+//                .and().logout().logoutUrl("/logout").permitAll();
     }
 }

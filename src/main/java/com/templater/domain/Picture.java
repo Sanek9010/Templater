@@ -1,19 +1,14 @@
 package com.templater.domain;
 
-import com.templater.service.CustomMultipartFile;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import javax.persistence.*;
 
 @Entity
 public class Picture implements Part {
+
     private String contentXml;
     private Long id;
     private Long numberInTemplate;
-    private Template template;
     @Column(length=100000)
     private byte[] pictureBytes;
     private PartGroup partGroup;
@@ -33,16 +28,6 @@ public class Picture implements Part {
 
     public void setPartGroup(PartGroup partGroup) {
         this.partGroup = partGroup;
-    }
-
-
-    @ManyToOne
-    public Template getTemplate() {
-        return template;
-    }
-
-    public void setTemplate(Template template) {
-        this.template = template;
     }
 
     public String getContentXml() {
@@ -92,7 +77,4 @@ public class Picture implements Part {
         byte[] encoded = Base64.getEncoder().encode(getPictureBytes());
         return new String(encoded);
     }
-
-
-
 }

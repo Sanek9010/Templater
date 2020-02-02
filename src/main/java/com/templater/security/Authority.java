@@ -6,10 +6,8 @@ import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
 
-//это роли на сайте
 @Entity
 public class Authority implements GrantedAuthority {
-
 
     private static final long serialVersionUID = 5857601452129962055L;
     private Long id;

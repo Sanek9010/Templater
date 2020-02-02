@@ -1,5 +1,6 @@
 package com.templater.repositories;
 
+import com.templater.domain.PartGroup;
 import com.templater.domain.Picture;
 import com.templater.domain.Template;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,5 +10,5 @@ import java.util.List;
 
 @Repository
 public interface PictureRepository extends JpaRepository<Picture, Long> {
-    List<Picture> findByTemplate(Template template);
+    List<Picture> findByPartGroup(PartGroup partGroup);
 }

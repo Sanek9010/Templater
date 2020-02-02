@@ -108,6 +108,4 @@ public class PartController {
         templateService.editPart(requestContent,templateId);
         return ResponseEntity.ok("done");
     }
-
-
 }

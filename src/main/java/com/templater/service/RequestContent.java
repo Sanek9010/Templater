@@ -1,6 +1,7 @@
 package com.templater.service;
 
 public class RequestContent{
+
     private String editorType;
     private String content;
     private String styleId;

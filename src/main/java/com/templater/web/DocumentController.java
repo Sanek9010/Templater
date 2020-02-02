@@ -7,11 +7,8 @@ import com.templater.security.Authority;
 import com.templater.service.DocumentService;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -40,8 +37,6 @@ public class DocumentController {
     @Autowired
     private DocumentRepository documentRepository;
     @Autowired
-    private TemplateRepository templateRepository;
-    @Autowired
     private DocumentService documentService;
 
     @RequestMapping(value = "/documents", method = RequestMethod.GET)
@@ -58,18 +53,12 @@ public class DocumentController {
 
     @RequestMapping(value = "/documents", method = RequestMethod.POST)
     public String createDocument(@AuthenticationPrincipal User user){
-//        for (Authority authority:user.getAuthorities()) {
-//            if(authority.getAuthority().equals("ROLE_SUPERUSER")){
-//                return "redirect:/templates";
-//            }
-//        }
         return "redirect:/templates";
     }
 
     @RequestMapping(value = "/documents/create/{templateId}", method = RequestMethod.POST)
     public String createDocument(@AuthenticationPrincipal User user, @PathVariable Long templateId){
         Document document = documentService.createDocument(templateId,user);
-
         return "redirect:/documents/"+document.getId();
     }
 
@@ -105,8 +94,7 @@ public class DocumentController {
                 }
             }
         }
-        Document savedTemplate = documentRepository.save(document);
-
+        documentRepository.save(document);
         return "redirect:/documents/"+documentId;
     }
 
@@ -123,8 +111,6 @@ public class DocumentController {
         Document actualDocument = new Document();
         if(documentOptional.isPresent()){
             actualDocument=documentOptional.get();
-        } else {
-            //todo вывести ошибку
         }
         String baseURL = System.getProperty("user.dir");
         String fileLocation = baseURL + "/OUT_from_XHTML.docx";

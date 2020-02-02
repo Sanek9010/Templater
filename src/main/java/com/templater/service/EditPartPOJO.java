@@ -1,6 +1,7 @@
 package com.templater.service;
 
 public class EditPartPOJO {
+
     private Integer partId;
     private String content;
     private String styleId;
@@ -37,6 +38,4 @@ public class EditPartPOJO {
     public void setTableStyleId(String tableStyleId) {
         this.tableStyleId = tableStyleId;
     }
-
-
 }

@@ -19,8 +19,6 @@ public class Template {
     private Long numberOfParts;
     private Boolean privateTemplate;
     private Set<User> users = new HashSet<>();
-    private Set<Paragraph> paragraphs = new HashSet<>();
-    private Set<Picture> pictures = new HashSet<>();
     private Set<Document> documents = new HashSet<>();
     private Set<Placeholder> placeholders = new HashSet<>();
     private Set<PartGroup> partGroups = new HashSet<>();
@@ -33,17 +31,9 @@ public class Template {
         this.setNumberOfParts(template.getNumberOfParts());
         this.setUsers(template.users);
         this.placeholders = new HashSet<>();
-        this.pictures = new HashSet<>();
-        this.paragraphs = new HashSet<>();
         this.partGroups = new HashSet<>();
         for (PartGroup partGroup:template.getPartGroups()){
             addPartGroup(new PartGroup(partGroup));
-        }
-        for (Paragraph p:template.getParagraphs()) {
-            addParagraph(new Paragraph(p),p);
-        }
-        for (Picture p:template.getPictures()) {
-            addPicture(new Picture(p),p);
         }
         for (Placeholder p:template.getPlaceholders()) {
             addPlaceholder(new Placeholder(p));
@@ -77,28 +67,6 @@ public class Template {
         this.partGroups = partGroups;
     }
 
-    @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER, mappedBy = "template")
-    public Set<Paragraph> getParagraphs() {
-        return paragraphs;
-    }
-
-    public void setParagraphs(Set<Paragraph> paragraphs) {
-
-            this.paragraphs=paragraphs;
-
-    }
-
-    @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER, mappedBy = "template")
-    public Set<Picture> getPictures() {
-        return pictures;
-    }
-
-    public void setPictures(Set<Picture> pictures) {
-
-            this.pictures=pictures;
-
-    }
-
     @ManyToMany
     @JoinTable(
             name = "users_template",
@@ -111,9 +79,6 @@ public class Template {
     public void setUsers(Set<User> users) {
         this.users = users;
     }
-
-
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -157,24 +122,6 @@ public class Template {
 
     public void setPrivateTemplate(Boolean privateTemplate) {
         this.privateTemplate = privateTemplate;
-    }
-
-    public void addParagraph(Paragraph paragraph, Paragraph p){
-        paragraph.setTemplate(this);
-        for (PartGroup partGroup : partGroups) {
-            if(partGroup.getName().equals(p.getPartGroup().getName()))
-                paragraph.setPartGroup(partGroup);
-        }
-        this.paragraphs.add(paragraph);
-    }
-
-    public void addPicture(Picture picture, Picture p){
-        picture.setTemplate(this);
-        for (PartGroup partGroup : partGroups) {
-            if(partGroup.getName().equals(p.getPartGroup().getName()))
-                picture.setPartGroup(partGroup);
-        }
-        this.pictures.add(picture);
     }
 
     public void addPlaceholder(Placeholder placeholder){

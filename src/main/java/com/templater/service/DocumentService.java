@@ -19,11 +19,6 @@ public class DocumentService {
     private PlaceholderRepository placeholderRepository;
     @Autowired
     private TemplateService templateService;
-    @Autowired
-    private ParagraphRepository paragraphRepository;
-    @Autowired
-    private PictureRepository pictureRepository;
-
 
     public Document createDocument(Long templateId,User user){
         Optional<Template> templateOptional = templateRepository.findById(templateId);
@@ -60,7 +55,6 @@ public class DocumentService {
                 documentPlaceholder.setDocument(document);
                 document.getPlaceholders().add(placeholderRepository.save(documentPlaceholder));
             }
-
         }
         return document;
     }
@@ -97,7 +91,7 @@ public class DocumentService {
                                     requestContent.setEditorType("Picture");
                                     requestContent.setPicture(placeholder.getPictureBytes());
                                     requestContent.setNumberOfPart(part.getNumberInTemplate());
-                                    templateService.savePart(requestContent,part.getTemplate().getId());
+                                    templateService.savePart(requestContent,part.getPartGroup().getTemplate().getId());
                                     part.setContentXml(templateService.cleanHtml(part.getContentXml().replace(placeholderString, "")));
                                 }
                             }

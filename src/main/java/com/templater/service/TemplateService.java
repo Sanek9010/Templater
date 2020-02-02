@@ -19,9 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.w3c.tidy.Tidy;
 
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
@@ -29,9 +26,9 @@ import java.util.*;
 
 @Service
 public class TemplateService {
+
     @Autowired
     private TemplateRepository templateRepo;
-
     @Autowired
     private ParagraphRepository paragraphRepository;
     @Autowired
@@ -45,134 +42,67 @@ public class TemplateService {
     @Autowired
     private PartGroupRepository partGroupRepository;
 
-
-    private XHTMLImporterImpl xhtmlImporter;
-
-    @PersistenceContext
-    private EntityManager em;
-
-
-    public Template save(Template template){
+    public Template save(Template template) {
         return templateRepo.save(template);
     }
 
-    public Template deepSave(Template template){
+    public Template deepSave(Template template) {
         templateRepo.save(template);
-        for (PartGroup partGroup:template.getPartGroups()){
+        for (PartGroup partGroup : template.getPartGroups()) {
             partGroupRepository.save(partGroup);
+            for (Paragraph p : partGroup.getParagraphs()) {
+                paragraphRepository.save(p);
+            }
+            for (Picture p : partGroup.getPictures()) {
+                pictureRepository.save(p);
+            }
         }
-        for (Paragraph p:template.getParagraphs()) {
-            paragraphRepository.save(p);
-        }
-        for (Picture p:template.getPictures()) {
-            pictureRepository.save(p);
-        }
-        for (Placeholder p:template.getPlaceholders()) {
+        for (Placeholder p : template.getPlaceholders()) {
             placeholderRepository.save(p);
         }
-
         template = templateRepo.save(template);
         return template;
     }
 
-//    public Template saveAddedTemplate(Template template, User user){
-//        Template saved = new Template();
-//        saved.setUser(user);
-//        saved.setPrivateTemplate(template.getPrivateTemplate());
-//        saved.setDateOfCreation(template.getDateOfCreation());
-//        saved.setName(template.getName());
-//        saved.setNumberOfParts(template.getNumberOfParts());
-//        saved.setParagraphs(new HashSet<>());
-//        saved.setDocTables(new HashSet<>());
-//        saved = save(saved);
-//        for (Placeholder placeholder:template.getPlaceholders()) {
-//            Placeholder newP = new Placeholder();
-//            newP.setTemplate(saved);
-//            newP.setPictureBytes(placeholder.getPictureBytes());
-//            newP.setPictureFile(placeholder.getPictureFile());
-//            newP.setFilled(placeholder.getFilled());
-//            newP.setType(placeholder.getType());
-//            newP.setName(placeholder.getName());
-//            newP.setContentXml(placeholder.getContentXml());
-//            saved.getPlaceholders().add(newP);
-//        }
-//        for (Picture picture:template.getPictures()) {
-//            Picture picture1 = new Picture();
-//            picture1.setTemplate(saved);
-//            picture1.setPictureFile(picture.getPictureFile());
-//            picture1.setContentXml(picture.getContentXml());
-//            picture1.setNumberInTemplate(picture.getNumberInTemplate());
-//            saved.getPictures().add(picture1);
-//        }
-//        for (DocTable table:template.getDocTables()) {
-//            DocTable table1 = new DocTable();
-//            table1.setTemplate(saved);
-//            table1.setContentXml(table.getContentXml());
-//            table1.setNumberInTemplate(table.getNumberInTemplate());
-//            table1.setTableStyle(table.getTableStyle());
-//            saved.getDocTables().add(table1);
-//        }
-//        for (Paragraph paragraph:template.getParagraphs()) {
-//            Paragraph paragraph1 = new Paragraph();
-//            paragraph1.setTemplate(saved);
-//            paragraph1.setNumberInTemplate(paragraph.getNumberInTemplate());
-//            paragraph1.setParagraphStyle(paragraph.getParagraphStyle());
-//            paragraph1.setContentXml(paragraph.getContentXml());
-//            saved.getParagraphs().add(paragraph1);
-//        }
-//        save(saved);
-//        return saved;
-//    }
-
-
-
-    public Map<Long,Part> getDefaultParts(Template template){
-        List<Paragraph> paragraphs = paragraphRepository.findByTemplate(template);
-        List<Picture> pictures = pictureRepository.findByTemplate(template);
-        Map<Long,Part> contentList = new TreeMap<>();
-        for (Paragraph p: paragraphs) {
-            if(p.getPartGroup().getName().equals("Default"))
-                contentList.put(p.getNumberInTemplate(),p);
+    public Map<Long, Part> getDefaultParts(Template template) {
+        List<Paragraph> paragraphs = new ArrayList<>();
+        List<Picture> pictures = new ArrayList<>();
+        addPartsToLists(template, paragraphs, pictures);
+        Map<Long, Part> contentList = new TreeMap<>();
+        for (Paragraph p : paragraphs) {
+            if (p.getPartGroup().getName().equals("Default"))
+                contentList.put(p.getNumberInTemplate(), p);
         }
-        for (Picture picture: pictures) {
-            if(picture.getPartGroup().getName().equals("Default"))
-                contentList.put(picture.getNumberInTemplate(),picture);
+        for (Picture picture : pictures) {
+            if (picture.getPartGroup().getName().equals("Default"))
+                contentList.put(picture.getNumberInTemplate(), picture);
         }
         return contentList;
     }
 
-    public Map<Long,Part> getAllParts(Template template){
-        List<Paragraph> paragraphs = paragraphRepository.findByTemplate(template);
-        List<Picture> pictures = pictureRepository.findByTemplate(template);
-        Map<Long,Part> contentList = new TreeMap<>();
-        for (Paragraph p: paragraphs) {
-            contentList.put(p.getNumberInTemplate(),p);
+    private void addPartsToLists(Template template, List<Paragraph> paragraphs, List<Picture> pictures){
+        for (PartGroup partGroup : template.getPartGroups()) {
+            paragraphs.addAll(partGroup.getParagraphs());
+            pictures.addAll(partGroup.getPictures());
         }
-        for (Picture picture: pictures) {
-            contentList.put(picture.getNumberInTemplate(),picture);
+    }
+
+    public Map<Long, Part> getAllParts(Template template) {
+        List<Paragraph> paragraphs = new ArrayList<>();
+        List<Picture> pictures = new ArrayList<>();
+        addPartsToLists(template, paragraphs, pictures);
+        Map<Long, Part> contentList = new TreeMap<>();
+        for (Paragraph p : paragraphs) {
+            contentList.put(p.getNumberInTemplate(), p);
+        }
+        for (Picture picture : pictures) {
+            contentList.put(picture.getNumberInTemplate(), picture);
         }
         return contentList;
     }
 
-
-    public String getTemplateXml(Template template){
-        Map<Long,Part> contentList = getDefaultParts(template);
-        StringBuilder stringBuilder = new StringBuilder();
-        contentList.forEach((aLong, s) -> stringBuilder.append(s.getContentXml()));
-        String st = stringBuilder.toString();//.replace("&nbsp;","");
-        st  ="<div>"+st+"</div>";
-        return st;
-    }
-
-    //убираем именованные сущности из html
-    public String getEscapedHtml(String htmlWithoutEntities) {
-        //todo как то справиться с форматированием которое делает jTidy(вроде сделал но нужны тесты)
-        Tidy tidy = new Tidy();
-        tidy.setInputEncoding("UTF-8");
-        tidy.setOutputEncoding("UTF-8");
-        tidy.setPrintBodyOnly(true); // only print the content
-        tidy.setXmlOut(true); // to XML
-        tidy.setSmartIndent(false);
+    private String getEscapedHtml(String htmlWithoutEntities) {
+        Tidy tidy = setupTidy();
         try {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(htmlWithoutEntities.getBytes("UTF-8"));
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -181,106 +111,108 @@ public class TemplateService {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        htmlWithoutEntities = htmlWithoutEntities.replaceAll("\r\n"," ");
+        htmlWithoutEntities = htmlWithoutEntities.replaceAll("\r\n", " ");
         htmlWithoutEntities = htmlWithoutEntities.trim().replaceAll(" +", " ");
         return htmlWithoutEntities;
     }
 
-    public String cleanHtml(String htmlWithoutEntities){
+    private Tidy setupTidy(){
+        Tidy tidy = new Tidy();
+        tidy.setInputEncoding("UTF-8");
+        tidy.setOutputEncoding("UTF-8");
+        tidy.setPrintBodyOnly(true);
+        tidy.setXmlOut(true);
+        tidy.setSmartIndent(false);
+        return tidy;
+    }
+
+    String cleanHtml(String htmlWithoutEntities) {
         Document document = Jsoup.parse(htmlWithoutEntities);
         document.select("button").remove();
         htmlWithoutEntities = document.outerHtml();
-        htmlWithoutEntities = htmlWithoutEntities.replace("<br>","\n");
+        htmlWithoutEntities = htmlWithoutEntities.replace("<br>", "\n");
         return htmlWithoutEntities;
     }
 
-    public org.docx4j.wml.P newImage( WordprocessingMLPackage wordMLPackage,
-                                             byte[] bytes,
-                                             String filenameHint, String altText,
-                                             int id1, int id2) throws Exception {
-
+    private org.docx4j.wml.P newImage(WordprocessingMLPackage wordMLPackage,
+                                      byte[] bytes,
+                                      String filenameHint, String altText,
+                                      int id1, int id2) throws Exception {
         BinaryPartAbstractImage imagePart = BinaryPartAbstractImage.createImagePart(wordMLPackage, bytes);
-
-        Inline inline = imagePart.createImageInline( filenameHint, altText,
+        Inline inline = imagePart.createImageInline(filenameHint, altText,
                 id1, id2, false);
-
-        // Now add the inline in w:p/w:r/w:drawing
         org.docx4j.wml.ObjectFactory factory = Context.getWmlObjectFactory();
-        org.docx4j.wml.P  p = factory.createP();
-        org.docx4j.wml.R  run = factory.createR();
+        org.docx4j.wml.P p = factory.createP();
+        org.docx4j.wml.R run = factory.createR();
         p.getContent().add(run);
         org.docx4j.wml.Drawing drawing = factory.createDrawing();
         run.getContent().add(drawing);
         drawing.getAnchorOrInline().add(inline);
-
         return p;
-
     }
 
-    private List<Object> getPartsInXml(Map<Long,Part> parts, XHTMLImporterImpl XHTMLImporter, WordprocessingMLPackage wordMLPackage) throws Docx4JException {
+    private List<Object> getPartsInXml(Map<Long, Part> parts, XHTMLImporterImpl XHTMLImporter, WordprocessingMLPackage wordMLPackage) throws Docx4JException {
         String baseURL = System.getProperty("user.dir");
-        List<Object> result= new ArrayList<>();
+        List<Object> result = new ArrayList<>();
         List<Object> old = new ArrayList<>();
         ObjectFactory factory = Context.getWmlObjectFactory();
-        for (Map.Entry<Long,Part> entry: parts.entrySet()) {
-            if(entry.getValue() instanceof Picture){
+        for (Map.Entry<Long, Part> entry : parts.entrySet()) {
+            if (entry.getValue() instanceof Picture) {
                 String filenameHint = null;
                 String altText = (entry.getValue()).getContentXml();
                 int id1 = 0;
                 int id2 = 1;
-                // Image 1: no width specified
                 try {
-                    result.add(newImage( wordMLPackage, ((Picture)(entry.getValue())).getPictureBytes(),
+                    result.add(newImage(wordMLPackage, ((Picture) (entry.getValue())).getPictureBytes(),
                             filenameHint, altText,
-                            id1, id2 ));
+                            id1, id2));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             } else {
-                String escapedPart = "<div>"+getEscapedHtml(entry.getValue().getContentXml())+"</div>";
-                List<Object> objects1 =  XHTMLImporter.convert(escapedPart, baseURL);
+                String escapedPart = "<div>" + getEscapedHtml(entry.getValue().getContentXml()) + "</div>";
+                List<Object> objects1 = XHTMLImporter.convert(escapedPart, baseURL);
                 List<Object> objects = new ArrayList<>();
                 for (int i = (objects1.size() - old.size()); i > 0; i--) {
-                    objects.add(objects1.get(objects1.size()-i));
+                    objects.add(objects1.get(objects1.size() - i));
                 }
-                for (Object o:objects) {
-                    if(o instanceof P){
-                        P p = (P)o;
+                for (Object o : objects) {
+                    if (o instanceof P) {
+                        P p = (P) o;
                         PPr pPr = p.getPPr();
-                        if(pPr.getJc().getVal()==JcEnumeration.LEFT){
+                        if (pPr.getJc().getVal() == JcEnumeration.LEFT) {
                             pPr.setJc(null);
                         }
                         pPr.setSpacing(null);
                         pPr.setInd(null);
-                        if(entry.getValue() instanceof Paragraph) {
+                        if (entry.getValue() instanceof Paragraph) {
                             PPrBase.PStyle pStyle = factory.createPPrBasePStyle();
                             pStyle.setVal(((Paragraph) entry.getValue()).getParagraphStyle().getName());
                             pPr.setPStyle(pStyle);
                         }
                         setPProperties(factory, p, pPr);
                         result.add(p);
-                    }else if(o instanceof Tbl){
-                        Tbl tbl = (Tbl)o;
+                    } else if (o instanceof Tbl) {
+                        Tbl tbl = (Tbl) o;
                         TblPr tblPr = tbl.getTblPr();
                         tblPr.setTblBorders(null);
-                        if(entry.getValue() instanceof Paragraph) {
+                        if (entry.getValue() instanceof Paragraph) {
                             CTTblPrBase.TblStyle tblStyle = factory.createCTTblPrBaseTblStyle();
-                            tblStyle.setVal(((Paragraph)entry.getValue()).getTableStyle().getName());
+                            tblStyle.setVal(((Paragraph) entry.getValue()).getTableStyle().getName());
                             tblPr.setTblStyle(tblStyle);
                         }
                         tbl.setTblPr(tblPr);
-
-                        for (Object tblElement:tbl.getContent()) {
-                            if(tblElement instanceof Tr){
-                                Tr tr = (Tr)tblElement;
-                                for (Object trElement: tr.getContent()) {
-                                    if(trElement instanceof Tc){
-                                        Tc tc = (Tc)trElement;
-                                        for (Object tcElement: tc.getContent()){
-                                            if(tcElement instanceof P){
-                                                P p = (P)tcElement;
+                        for (Object tblElement : tbl.getContent()) {
+                            if (tblElement instanceof Tr) {
+                                Tr tr = (Tr) tblElement;
+                                for (Object trElement : tr.getContent()) {
+                                    if (trElement instanceof Tc) {
+                                        Tc tc = (Tc) trElement;
+                                        for (Object tcElement : tc.getContent()) {
+                                            if (tcElement instanceof P) {
+                                                P p = (P) tcElement;
                                                 PPr pPr = p.getPPr();
-                                                if(pPr.getJc().getVal()==JcEnumeration.LEFT){
+                                                if (pPr.getJc().getVal() == JcEnumeration.LEFT) {
                                                     pPr.setJc(null);
                                                 }
                                                 pPr.setSpacing(null);
@@ -290,10 +222,8 @@ public class TemplateService {
                                         }
                                     }
                                 }
-                                //убираем fonts которые пришли с html
                             }
                         }
-
                         result.add(o);
                     }
                 }
@@ -302,15 +232,14 @@ public class TemplateService {
             }
         }
         return result;
-
     }
 
     private void setPProperties(ObjectFactory factory, P p, PPr pPr) {
         pPr.setRPr(factory.createParaRPr());
         p.setPPr(pPr);
-        for (Object pElement:p.getContent()) {
-            if(pElement instanceof R){
-                R r = (R)pElement;
+        for (Object pElement : p.getContent()) {
+            if (pElement instanceof R) {
+                R r = (R) pElement;
                 try {
                     RPr rPr = r.getRPr();
                     RPr newRPr = factory.createRPr();
@@ -319,25 +248,26 @@ public class TemplateService {
                     newRPr.setU(rPr.getU());
                     newRPr.setPosition(rPr.getPosition());
                     r.setRPr(newRPr);
-                }catch (Exception e){}
+                } catch (Exception e) {
+                }
             }
         }
     }
 
-    private void addStyles(WordprocessingMLPackage wordMLPackage,Template template){
-        Map<Long,Part> parts = getDefaultParts(template);
+    private void addStyles(WordprocessingMLPackage wordMLPackage, Template template) {
+        Map<Long, Part> parts = getDefaultParts(template);
         MainDocumentPart mainDocumentPart = wordMLPackage.getMainDocumentPart();
         StyleDefinitionsPart stylesPart = mainDocumentPart.getStyleDefinitionsPart();
         List<ParagraphStyle> paragraphStyles = new ArrayList<>();
         List<TableStyle> tableStyles = new ArrayList<>();
         parts.forEach((aLong, part) -> {
-            if(part instanceof Paragraph){
-                if(!paragraphStyles.contains(((Paragraph) part).getParagraphStyle())) {
+            if (part instanceof Paragraph) {
+                if (!paragraphStyles.contains(((Paragraph) part).getParagraphStyle())) {
                     Style style = ((Paragraph) part).getParagraphStyle().createParagraphStyle();
                     stylesPart.getJaxbElement().getStyle().add(style);
                     paragraphStyles.add(((Paragraph) part).getParagraphStyle());
                 }
-                if(!tableStyles.contains(((Paragraph) part).getTableStyle())) {
+                if (!tableStyles.contains(((Paragraph) part).getTableStyle())) {
                     Style style = ((Paragraph) part).getTableStyle().createTableStyle();
                     stylesPart.getJaxbElement().getStyle().add(style);
                     tableStyles.add(((Paragraph) part).getTableStyle());
@@ -347,76 +277,61 @@ public class TemplateService {
 
     }
 
-    public WordprocessingMLPackage convertToDocx(Map<Long,Part> parts, Template template){
-//        Map<Long,Part> parts = getDefaultParts(template);
-        //convert to docx4j:
-        // возможно это все можно заменить на AltChunkXHTMLRoundTrip из docx4j
+    public WordprocessingMLPackage convertToDocx(Map<Long, Part> parts, Template template) {
         try {
-            //String baseURL = System.getProperty("user.dir");
-            //RFonts rfonts = Context.getWmlObjectFactory().createRFonts();
-            //rfonts.setAscii("Times New Roman");
-            //XHTMLImporterImpl.addFontMapping("Times New Roman", rfonts);
             WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.createPackage();
-            addStyles(wordMLPackage,template);
-            //NumberingDefinitionsPart ndp = new NumberingDefinitionsPart();
-            //wordMLPackage.getMainDocumentPart().addTargetPart(ndp);
-            //ndp.unmarshalDefaultNumbering();
+            addStyles(wordMLPackage, template);
             XHTMLImporterImpl xhtmlImporter = new XHTMLImporterImpl(wordMLPackage);
-            //XHTMLImporter.setRunFormatting(FormattingOption.CLASS_TO_STYLE_ONLY);
-            //XHTMLImporter.setHyperlinkStyle("Hyperlink");
-            List<Object> convert = getPartsInXml(parts,xhtmlImporter,wordMLPackage);
+            List<Object> convert = getPartsInXml(parts, xhtmlImporter, wordMLPackage);
             wordMLPackage.getMainDocumentPart().getContent().addAll(convert);
-            //String fileLocation = baseURL + "/OUT_from_XHTML.docx";
-            //wordMLPackage.save(new java.io.File(fileLocation) );
             System.out.println(
                     XmlUtils.marshaltoString(wordMLPackage.getMainDocumentPart().getJaxbElement(), true, true));
             return wordMLPackage;
-        } catch ( Docx4JException e) {
+        } catch (Docx4JException e) {
             e.printStackTrace();
         }
-        return null;//todo заменить на что нибудь нормальное
+        return null;
     }
 
     public Object savePart(RequestContent requestContent, Long templateId) {
         Optional<Template> templateOpt = templateRepo.findById(templateId);
         Template template;
-        if(templateOpt.isPresent()){
+        if (templateOpt.isPresent()) {
             template = templateOpt.get();
-        }else {
+        } else {
             throw new NullPointerException("Template not found");
         }
-        if((requestContent.getEditorType().equals("Paragraph")||
-                requestContent.getEditorType().equals("Picture")||
-                requestContent.getEditorType().equals("PictureSdt"))&&
-                (requestContent.getNumberOfPart()< template.getNumberOfParts())){
+        if ((requestContent.getEditorType().equals("Paragraph") ||
+                requestContent.getEditorType().equals("Picture") ||
+                requestContent.getEditorType().equals("PictureSdt")) &&
+                (requestContent.getNumberOfPart() < template.getNumberOfParts())) {
             Map<Long, Part> allParts = getDefaultParts(template);
             allParts.forEach((aLong, part) -> {
-                if(part.getNumberInTemplate()>=requestContent.getNumberOfPart()){
-                    if(part instanceof Paragraph){
-                        Paragraph paragraph = (Paragraph)part;
-                        paragraph.setNumberInTemplate(paragraph.getNumberInTemplate()+1);
+                if (part.getNumberInTemplate() >= requestContent.getNumberOfPart()) {
+                    if (part instanceof Paragraph) {
+                        Paragraph paragraph = (Paragraph) part;
+                        paragraph.setNumberInTemplate(paragraph.getNumberInTemplate() + 1);
                         paragraphRepository.save(paragraph);
-                    } else if(part instanceof Picture){
-                        Picture picture = (Picture)part;
-                        picture.setNumberInTemplate(picture.getNumberInTemplate()+1);
+                    } else if (part instanceof Picture) {
+                        Picture picture = (Picture) part;
+                        picture.setNumberInTemplate(picture.getNumberInTemplate() + 1);
                         pictureRepository.save(picture);
                     }
                 }
             });
         }
         PartGroup partGroup = null;
-        if(requestContent.getPartGroup()!=null && !requestContent.getPartGroup().equals("")){
+        if (requestContent.getPartGroup() != null && !requestContent.getPartGroup().equals("")) {
             partGroup = partGroupRepository.findById(Long.parseLong(requestContent.getPartGroup())).get();
-        } else{
-            partGroup = partGroupRepository.findByName("Default").get();
+        } else {
+            partGroup = partGroupRepository.findByNameAndTemplate("Default", template).get();
         }
         switch (requestContent.getEditorType()) {
-            case "Paragraph": //||requestContent.getEditorType().equals("Table")
+            case "Paragraph":
                 template.setNumberOfParts(template.getNumberOfParts() + 1);
                 Paragraph paragraph = new Paragraph();
                 paragraph.setContentXml(requestContent.getContent());
                 paragraph.setNumberInTemplate(requestContent.getNumberOfPart());
-                paragraph.setTemplate(template);
                 paragraph.setPartGroup(partGroup);
                 if (!requestContent.getStyleId().equals(""))
                     paragraph.setParagraphStyle(paragraphStyleRepository.findById(Long.parseLong(requestContent.getStyleId())).get());
@@ -431,7 +346,6 @@ public class TemplateService {
                 template.setNumberOfParts(template.getNumberOfParts() + 1);
                 Picture picture = new Picture();
                 picture.setNumberInTemplate(requestContent.getNumberOfPart());
-                picture.setTemplate(template);
                 picture.setPartGroup(partGroup);
                 picture.setPictureBytes(requestContent.getPicture());
                 return pictureRepository.save(picture);
@@ -456,7 +370,7 @@ public class TemplateService {
                 template.setNumberOfParts(template.getNumberOfParts() + 1);
                 Picture picture = new Picture();
                 picture.setNumberInTemplate(requestContent.getNumberOfPart());
-                picture.setTemplate(template);
+                picture.setPartGroup(partGroup);
                 picture.setContentXml(requestContent.getContent());
                 pictureRepository.save(picture);
                 return placeholderRepository.save(placeholder);
@@ -476,21 +390,15 @@ public class TemplateService {
         }
     }
 
-    public void deletePart(int partId, Long templateId){
-        Optional<Template> templateOpt = templateRepo.findById(templateId);
-        Template template;
-        if(templateOpt.isPresent()){
-            template = templateOpt.get();
-        }else {
-            template = new Template();//todo заменить на нормальную обработку
-        }
-        Map<Long,Part> parts = getDefaultParts(template);
+    public void deletePart(int partId, Long templateId) {
+        Template template = getTemplateById(templateId);
+        Map<Long, Part> parts = getDefaultParts(template);
         try {
             parts.forEach((aLong, part) -> {
-                if(aLong== (long)partId){
-                    if(part instanceof Paragraph){
+                if (aLong == (long) partId) {
+                    if (part instanceof Paragraph) {
                         paragraphRepository.deleteById(part.getId());
-                    }else if(part instanceof Picture){
+                    } else if (part instanceof Picture) {
                         pictureRepository.deleteById(part.getId());
                     }
                 }
@@ -500,31 +408,30 @@ public class TemplateService {
         }
     }
 
-    public void editPart(EditPartPOJO editPartPOJO, Long templateId){
+    private Template getTemplateById(Long templateId) {
         Optional<Template> templateOpt = templateRepo.findById(templateId);
-        Template template;
-        if(templateOpt.isPresent()){
-            template = templateOpt.get();
-        }else {
-            template = new Template();//todo заменить на нормальную обработку
-        }
-        Map<Long,Part> parts = getDefaultParts(template);
+        return templateOpt.orElseGet(Template::new);
+    }
+
+    public void editPart(EditPartPOJO editPartPOJO, Long templateId) {
+        Template template = getTemplateById(templateId);
+        Map<Long, Part> parts = getDefaultParts(template);
         try {
             parts.forEach((aLong, part) -> {
-                if(aLong== (long)editPartPOJO.getPartId()){
-                    if(part instanceof Paragraph){
-                        Paragraph paragraph = (Paragraph)part;
-                        if(!editPartPOJO.getStyleId().equals(""))
+                if (aLong == (long) editPartPOJO.getPartId()) {
+                    if (part instanceof Paragraph) {
+                        Paragraph paragraph = (Paragraph) part;
+                        if (!editPartPOJO.getStyleId().equals(""))
                             paragraph.setParagraphStyle(paragraphStyleRepository.findById(Long.parseLong(editPartPOJO.getStyleId())).get());
                         else
                             paragraph.setParagraphStyle(paragraphStyleRepository.findAll().get(0));
-                        if(!editPartPOJO.getTableStyleId().equals(""))
+                        if (!editPartPOJO.getTableStyleId().equals(""))
                             paragraph.setTableStyle(tableStyleRepository.findById(Long.parseLong(editPartPOJO.getTableStyleId())).get());
                         else
                             paragraph.setTableStyle(tableStyleRepository.findAll().get(0));
                         paragraph.setContentXml(editPartPOJO.getContent());
                         paragraphRepository.save(paragraph);
-                    }else if(part instanceof Picture){
+                    } else if (part instanceof Picture) {
                         Picture picture = (Picture) part;
                         picture.setContentXml(editPartPOJO.getContent());
                         pictureRepository.save(picture);

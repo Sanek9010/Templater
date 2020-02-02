@@ -59,13 +59,12 @@ public class StyleController {
 
     @RequestMapping(value = "/styles/{styleId}", method = RequestMethod.POST)
     public String updateTemplate(@PathVariable Long styleId, @ModelAttribute ParagraphStyle style){
-        ParagraphStyle savedTemplate = styleRepository.save(style);
+        styleRepository.save(style);
         return "redirect:/styles/"+styleId;
     }
 
     @RequestMapping(value = "/styles/{styleId}/delete", method = RequestMethod.GET)
     public String deleteTemplate(@PathVariable Long styleId){
-
         styleRepository.deleteById(styleId);
         return "redirect:/styles";
     }
@@ -86,7 +85,7 @@ public class StyleController {
 
     @RequestMapping(value = "/styles/tableStyles/{styleId}", method = RequestMethod.POST)
     public String tableStyleView(@PathVariable Long styleId, @ModelAttribute TableStyle style) {
-        TableStyle savedTemplate = tableStyleRepository.save(style);
+        tableStyleRepository.save(style);
         return "redirect:/styles/";
     }
 

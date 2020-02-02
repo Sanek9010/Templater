@@ -5,7 +5,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.UnsupportedEncodingException;
 
 public interface Part {
-    Template getTemplate();
     String getContentXml();
     Long getNumberInTemplate();
     Long getId();

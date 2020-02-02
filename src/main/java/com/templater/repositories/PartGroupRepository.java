@@ -12,5 +12,5 @@ public interface PartGroupRepository extends JpaRepository<PartGroup, Long> {
 
     List<PartGroup> findByTemplate(Template template);
 
-    Optional<PartGroup> findByName(String name);
+    Optional<PartGroup> findByNameAndTemplate(String name, Template template);
 }
